@@ -17,7 +17,7 @@ class _RunPageState extends State<RunPage> {
     return Scaffold(
       body: FlutterMap(
         options: MapOptions(
-          initialCenter: LatLng(34, 135), // 지도 중심 좌표
+          initialCenter: LatLng(34.70, 135.2), // 지도 중심 좌표
           initialZoom: 13.0, // 줌 레벨 설정
           onTap: _addPointToRoute, // 지도 터치 시 경로에 좌표 추가
         ),
