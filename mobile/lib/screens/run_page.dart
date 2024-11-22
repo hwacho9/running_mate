@@ -10,29 +10,50 @@ class RunPage extends StatefulWidget {
 }
 
 class _RunPageState extends State<RunPage> {
-  List<LatLng> _routePoints = []; // 그린 경로를 저장하는 리스트
+  List<LatLng> _routePoints = []; // 경로 저장
+
+  void _saveRoute() {
+    if (_routePoints.isEmpty) return;
+
+    // Navigate to MyRoutesPage with the new route
+    Navigator.pushNamed(context, '/my-routes', arguments: _routePoints);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Draw Your Route'),
+        actions: [
+          IconButton(
+            onPressed: _saveRoute,
+            icon: const Icon(Icons.save),
+            tooltip: 'Save Route',
+          ),
+        ],
+      ),
       body: FlutterMap(
         options: MapOptions(
           initialCenter: LatLng(34.70, 135.2), // 지도 중심 좌표
-          initialZoom: 13.0, // 줌 레벨 설정
-          onTap: _addPointToRoute, // 지도 터치 시 경로에 좌표 추가
+          initialZoom: 13.0,
+          onTap: (tapPosition, latLng) {
+            setState(() {
+              print('Tapped at $latLng');
+              _routePoints.add(latLng);
+            });
+          },
         ),
         children: [
           TileLayer(
-            urlTemplate:
-                'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OSMF's Tile Server
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'com.example.app',
           ),
           PolylineLayer(
             polylines: [
               Polyline(
-                points: _routePoints, // 그린 경로의 좌표들
+                points: _routePoints,
                 strokeWidth: 4.0,
-                color: Colors.red, // 경로의 색깔
+                color: Colors.red,
               ),
             ],
           ),
@@ -50,13 +71,13 @@ class _RunPageState extends State<RunPage> {
     );
   }
 
-  // TapPosition을 포함한 onTap 함수 수정
-  void _addPointToRoute(TapPosition tapPosition, LatLng latLng) {
-    setState(() {
-      _routePoints.add(latLng); // 터치한 위치의 좌표를 경로에 추가
-      print('Route points: $_routePoints');
-    });
-  }
+  // // TapPosition을 포함한 onTap 함수 수정
+  // void _addPointToRoute(TapPosition tapPosition, LatLng latLng) {
+  //   setState(() {
+  //     _routePoints.add(latLng); // 터치한 위치의 좌표를 경로에 추가
+  //     print('Route points: $_routePoints');
+  //   });
+  // }
 
   // 경로 초기화
   void _clearRoute() {

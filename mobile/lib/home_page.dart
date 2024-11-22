@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:running_mate/screens/profile_page.dart';
+import 'package:running_mate/screens/my_routes_page.dart';
 import 'package:running_mate/screens/run_page.dart';
+import 'package:running_mate/screens/shared_routes_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,10 +13,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _pages = <Widget>[
+  static List<Widget> _pages = <Widget>[
     RunPage(),
-    Center(child: Text('Stats Page')),
-    ProfilePage(),
+    MyRoutesPage(),
+    SharedRoutesPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -27,7 +28,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Running Mate')),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -37,11 +37,11 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'Stats',
+            label: 'My Routes',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Settings',
+            label: 'SNS',
           ),
         ],
         currentIndex: _selectedIndex,

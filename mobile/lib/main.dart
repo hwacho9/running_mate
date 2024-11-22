@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:running_mate/firebase_options.dart';
 import 'package:running_mate/home_page.dart';
+import 'package:running_mate/screens/my_routes_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomePage(),
+        '/my-routes': (context) => MyRoutesPage(),
       },
     );
   }
