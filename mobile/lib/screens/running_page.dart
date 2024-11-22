@@ -19,10 +19,10 @@ class RunningPage extends StatefulWidget {
 }
 
 class _RunningPageState extends State<RunningPage> {
-  LatLng? _currentPosition; // 내 현재 위치
-  int _timeElapsed = 0; // 경과 시간
-  final Map<String, LatLng> _userPositions = {}; // 다른 유저들의 현재 위치
-  late Timer _timer; // 경과 시간 타이머
+  LatLng? _currentPosition;
+  int _timeElapsed = 0;
+  final Map<String, LatLng> _userPositions = {};
+  late Timer _timer;
 
   @override
   void initState() {
@@ -41,7 +41,6 @@ class _RunningPageState extends State<RunningPage> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // 위치 서비스 활성화 여부 확인
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -50,7 +49,6 @@ class _RunningPageState extends State<RunningPage> {
       return;
     }
 
-    // 위치 권한 확인 및 요청
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -73,14 +71,12 @@ class _RunningPageState extends State<RunningPage> {
       return;
     }
 
-    // 현재 위치 가져오기
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _currentPosition = LatLng(position.latitude, position.longitude);
     });
 
-    // 위치 실시간 추적
     Geolocator.getPositionStream().listen((Position position) {
       setState(() {
         _currentPosition = LatLng(position.latitude, position.longitude);
@@ -148,13 +144,43 @@ class _RunningPageState extends State<RunningPage> {
     return distance(p1, p2);
   }
 
+  double _calculateProgress(LatLng position) {
+    final totalDistance =
+        _calculateDistance(widget.routePoints.first, widget.routePoints.last);
+    final traveledDistance =
+        _calculateDistance(widget.routePoints.first, position);
+    return traveledDistance / totalDistance;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final progressMarkers = <Widget>[];
+
+    // 현재 위치 마커 추가
+    if (_currentPosition != null) {
+      progressMarkers.add(Positioned(
+        left: MediaQuery.of(context).size.width *
+            _calculateProgress(_currentPosition!),
+        child: const Icon(Icons.run_circle, color: Colors.red, size: 16),
+      ));
+    }
+
+    // 다른 유저들의 위치 마커 추가
+    for (var user in _userPositions.entries) {
+      progressMarkers.add(Positioned(
+        left:
+            MediaQuery.of(context).size.width * _calculateProgress(user.value),
+        child: Icon(Icons.person, color: Colors.green, size: 16),
+      ));
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text("Running...")),
       body: Column(
         children: [
-          Expanded(
+          // 지도 영역
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.5,
             child: FlutterMap(
               options: MapOptions(
                 initialCenter: _currentPosition ?? widget.routePoints.first,
@@ -165,7 +191,6 @@ class _RunningPageState extends State<RunningPage> {
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.example.app',
                 ),
-                // 경로 표시
                 PolylineLayer(
                   polylines: [
                     Polyline(
@@ -175,7 +200,6 @@ class _RunningPageState extends State<RunningPage> {
                     ),
                   ],
                 ),
-                // 내 위치 표시
                 if (_currentPosition != null)
                   MarkerLayer(
                     markers: [
@@ -191,7 +215,6 @@ class _RunningPageState extends State<RunningPage> {
                       ),
                     ],
                   ),
-                // 다른 유저 위치 표시
                 for (var user in _userPositions.entries)
                   MarkerLayer(
                     markers: [
@@ -210,13 +233,24 @@ class _RunningPageState extends State<RunningPage> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              _calculateRanking(),
-              style:
-                  const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-            ),
+          // 진행률 바
+          Stack(
+            children: [
+              Container(
+                height: 20,
+                margin: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              ...progressMarkers,
+            ],
+          ),
+          // 랭킹 표시
+          Text(
+            _calculateRanking(),
+            style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
           ),
         ],
       ),
