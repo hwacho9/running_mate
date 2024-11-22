@@ -14,9 +14,9 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   static List<Widget> _pages = <Widget>[
-    RunPage(),
-    MyRoutesPage(),
-    SharedRoutesPage(),
+    const RunPage(),
+    const MyRoutesPage(),
+    const SharedRoutesPage(),
   ];
 
   void _onItemTapped(int index) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'running_page.dart';
 
 class RouteDetailPage extends StatelessWidget {
   final String routeName;
@@ -14,6 +15,62 @@ class RouteDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mockUserRecords = [
+      {
+        "userName": "User A",
+        "coordinates": [
+          {"time": 0, "lat": 34.689047, "lng": 135.181125},
+          {"time": 120, "lat": 34.690636, "lng": 135.184093},
+          {"time": 240, "lat": 34.692227, "lng": 135.187111},
+          {"time": 360, "lat": 34.69289, "lng": 135.190108},
+          {"time": 480, "lat": 34.693986, "lng": 135.19228},
+          {"time": 600, "lat": 34.695141, "lng": 135.194665},
+        ],
+      },
+      {
+        "userName": "User B",
+        "coordinates": [
+          {"time": 0, "lat": 34.689047, "lng": 135.181125},
+          {"time": 180, "lat": 34.690636, "lng": 135.184093},
+          {"time": 360, "lat": 34.692227, "lng": 135.187111},
+          {"time": 540, "lat": 34.69289, "lng": 135.190108},
+          {"time": 720, "lat": 34.693986, "lng": 135.19228},
+          {"time": 900, "lat": 34.695141, "lng": 135.194665},
+        ],
+      },
+      {
+        "userName": "User C",
+        "coordinates": [
+          {"time": 0, "lat": 34.689047, "lng": 135.181125},
+          {"time": 240, "lat": 34.690636, "lng": 135.184093},
+          {"time": 480, "lat": 34.692227, "lng": 135.187111},
+          {"time": 720, "lat": 34.69289, "lng": 135.190108},
+          {"time": 960, "lat": 34.693986, "lng": 135.19228},
+          {"time": 1200, "lat": 34.695141, "lng": 135.194665},
+        ],
+      },
+    ];
+
+    // 각 사용자 완주 시간 계산
+    // 각 사용자 완주 시간 계산
+    final rankings = mockUserRecords.map((user) {
+      // 사용자 이름과 좌표 가져오기
+      final userName = user['userName'] as String;
+      final coordinates = user['coordinates'] as List<dynamic>;
+
+      // 마지막 좌표의 시간 가져오기
+      final lastPoint = coordinates.last as Map<String, dynamic>;
+      final totalTime = lastPoint['time'] as int;
+
+      // 시간 형식으로 변환
+      final minutes = totalTime ~/ 60;
+      final seconds = totalTime % 60;
+      final timeString =
+          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+
+      return '$userName - $timeString';
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(title: Text(routeName)),
       body: Column(
@@ -48,7 +105,7 @@ class RouteDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Participants: 5',
+                  'Participants: 3',
                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8.0),
@@ -56,16 +113,23 @@ class RouteDetailPage extends StatelessWidget {
                   'Ranking:',
                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
-                const Text(
-                  '1. User A - 20:15\n2. User B - 22:30\n3. User C - 25:10',
+                Text(
+                  rankings.join('\n'),
+                  style: const TextStyle(fontSize: 16.0),
                 ),
                 const SizedBox(height: 16.0),
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Implement race functionality here
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Race started!')),
+                      // 경주 시작: RunningPage로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RunningPage(
+                            routePoints: routePoints,
+                            userRecords: mockUserRecords,
+                          ),
+                        ),
                       );
                     },
                     child: const Text('Start Running'),
