@@ -4,13 +4,11 @@ import 'package:latlong2/latlong.dart';
 
 class RouteDetailPage extends StatelessWidget {
   final String routeName;
-  final int participants;
   final List<LatLng> routePoints;
 
   const RouteDetailPage({
     super.key,
     required this.routeName,
-    required this.participants,
     required this.routePoints,
   });
 
@@ -23,7 +21,8 @@ class RouteDetailPage extends StatelessWidget {
           Expanded(
             child: FlutterMap(
               options: MapOptions(
-                initialCenter: LatLng(34.70, 135.2), // 지도 중심 좌표
+                initialCenter:
+                    routePoints.isNotEmpty ? routePoints.first : LatLng(0, 0),
                 initialZoom: 13.0,
               ),
               children: [
@@ -43,15 +42,37 @@ class RouteDetailPage extends StatelessWidget {
               ],
             ),
           ),
-          ListTile(
-            title: const Text('Participants'),
-            subtitle: Text('$participants runners'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Implement race functionality here
-            },
-            child: const Text('Start Running'),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Participants: 5',
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                const Text(
+                  'Ranking:',
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                ),
+                const Text(
+                  '1. User A - 20:15\n2. User B - 22:30\n3. User C - 25:10',
+                ),
+                const SizedBox(height: 16.0),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Implement race functionality here
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Race started!')),
+                      );
+                    },
+                    child: const Text('Start Running'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

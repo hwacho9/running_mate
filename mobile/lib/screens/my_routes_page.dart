@@ -1,49 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert'; // JSON 변환을 위해 필요
 import 'route_detail_page.dart';
 
-class MyRoutesPage extends StatelessWidget {
-  MyRoutesPage({super.key});
+class MyRoutesPage extends StatefulWidget {
+  const MyRoutesPage({super.key});
 
-  final List<Map<String, dynamic>> mockRoutes = [
-    {
-      "name": "Morning Run",
-      "participants": 5,
-      "route": [LatLng(34.7, 135.2), LatLng(34.71, 135.21)]
-    },
-    {
-      "name": "Park Loop",
-      "participants": 3,
-      "route": [LatLng(34.72, 135.22), LatLng(34.73, 135.23)]
-    },
-  ];
+  @override
+  _MyRoutesPageState createState() => _MyRoutesPageState();
+}
+
+class _MyRoutesPageState extends State<MyRoutesPage> {
+  List<Map<String, dynamic>> _routes = []; // 경로 데이터 저장
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRoutes();
+  }
+
+  // 저장된 경로 불러오기
+  Future<void> _loadRoutes() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 저장된 경로 가져오기
+    final savedRoutes = prefs.getStringList('routes') ?? [];
+
+    setState(() {
+      _routes = savedRoutes
+          .map((route) => jsonDecode(route) as Map<String, dynamic>)
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('My Routes')),
-      body: ListView.builder(
-        itemCount: mockRoutes.length,
-        itemBuilder: (context, index) {
-          final route = mockRoutes[index];
-          return ListTile(
-            title: Text(route['name']),
-            subtitle: Text('${route['participants']} participants'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RouteDetailPage(
-                    routeName: route['name'],
-                    participants: route['participants'],
-                    routePoints: route['route'],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+      body: _routes.isEmpty
+          ? const Center(
+              child: Text('No routes saved yet.'),
+            )
+          : ListView.builder(
+              itemCount: _routes.length,
+              itemBuilder: (context, index) {
+                final route = _routes[index];
+                return ListTile(
+                  title: Text(route['name']),
+                  subtitle: Text('${route['points'].length} points'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RouteDetailPage(
+                          routeName: route['name'],
+                          routePoints: (route['points'] as List)
+                              .map((point) => LatLng(point['lat'] as double,
+                                  point['lng'] as double))
+                              .toList(),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }

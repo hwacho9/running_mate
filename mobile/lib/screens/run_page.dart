@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert'; // JSON 변환을 위해 필요
 
 class RunPage extends StatefulWidget {
   const RunPage({super.key});
@@ -12,11 +14,40 @@ class RunPage extends StatefulWidget {
 class _RunPageState extends State<RunPage> {
   List<LatLng> _routePoints = []; // 경로 저장
 
-  void _saveRoute() {
+  // 경로 저장 함수
+  Future<void> _saveRoute() async {
     if (_routePoints.isEmpty) return;
 
-    // Navigate to MyRoutesPage with the new route
-    Navigator.pushNamed(context, '/my-routes', arguments: _routePoints);
+    final prefs = await SharedPreferences.getInstance();
+
+    // 기존 저장된 경로 가져오기
+    final existingRoutes = prefs.getStringList('routes') ?? [];
+
+    // 새로운 경로 생성
+    final newRoute = {
+      'name': 'Route ${existingRoutes.length + 1}', // 경로 이름
+      'points': _routePoints
+          .map((point) => {'lat': point.latitude, 'lng': point.longitude})
+          .toList(),
+    };
+
+    // 기존 경로에 새 경로 추가
+    existingRoutes.add(jsonEncode(newRoute));
+
+    // 저장
+    await prefs.setStringList('routes', existingRoutes);
+
+    // 저장 후 알림 및 초기화
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Route saved successfully!')),
+    );
+
+    setState(() {
+      _routePoints.clear();
+    });
+
+    // My Routes 페이지로 이동
+    Navigator.pushNamed(context, '/my-routes');
   }
 
   @override
@@ -34,11 +65,11 @@ class _RunPageState extends State<RunPage> {
       ),
       body: FlutterMap(
         options: MapOptions(
-          initialCenter: LatLng(34.70, 135.2), // 지도 중심 좌표
+          initialCenter: LatLng(34.70, 135.2),
           initialZoom: 13.0,
           onTap: (tapPosition, latLng) {
             setState(() {
-              print('Tapped at $latLng');
+              print(latLng);
               _routePoints.add(latLng);
             });
           },
@@ -57,11 +88,6 @@ class _RunPageState extends State<RunPage> {
               ),
             ],
           ),
-          const RichAttributionWidget(
-            attributions: [
-              TextSourceAttribution('OpenStreetMap contributors'),
-            ],
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -71,18 +97,10 @@ class _RunPageState extends State<RunPage> {
     );
   }
 
-  // // TapPosition을 포함한 onTap 함수 수정
-  // void _addPointToRoute(TapPosition tapPosition, LatLng latLng) {
-  //   setState(() {
-  //     _routePoints.add(latLng); // 터치한 위치의 좌표를 경로에 추가
-  //     print('Route points: $_routePoints');
-  //   });
-  // }
-
   // 경로 초기화
   void _clearRoute() {
     setState(() {
-      _routePoints.clear(); // 경로를 초기화
+      _routePoints.clear();
     });
   }
 }
