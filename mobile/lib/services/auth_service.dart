@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // 회원가입
   Future<UserModel?> signup(String email, String password) async {
@@ -12,11 +14,21 @@ class AuthService {
         email: email,
         password: password,
       );
-      return UserModel(
-          uid: userCredential.user?.uid, email: userCredential.user?.email);
+
+      // Firestore에 사용자 정보 저장
+      final user = userCredential.user;
+      if (user != null) {
+        await _firestore.collection('Users').doc(user.uid).set({
+          'email': email,
+          'uid': user.uid,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      return UserModel(uid: user?.uid, email: user?.email);
     } catch (e) {
       print("Signup Error: $e");
-      return null;
+      rethrow;
     }
   }
 
@@ -32,7 +44,7 @@ class AuthService {
           uid: userCredential.user?.uid, email: userCredential.user?.email);
     } catch (e) {
       print("Login Error: $e");
-      return null;
+      rethrow;
     }
   }
 

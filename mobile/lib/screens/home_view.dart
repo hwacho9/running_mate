@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/screens/auth/login_view.dart';
 import '../viewmodels/auth_viewmodel.dart';
 
 class HomeView extends StatelessWidget {
@@ -9,13 +10,19 @@ class HomeView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("홈 화면"),
+        title: const Text("홈 화면"),
+        automaticallyImplyLeading: false, // 뒤로가기 버튼 제거
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             onPressed: () async {
               await authViewModel.logout();
-              Navigator.pop(context); // 로그인 화면으로 이동
+
+              // 로그아웃 후 로그인 화면으로 이동
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => LoginView()),
+              );
             },
           ),
         ],
@@ -27,14 +34,14 @@ class HomeView extends StatelessWidget {
           children: [
             Text(
               "안녕하세요, ${authViewModel.user?.email ?? "사용자"}님!",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               "현재 사용자 정보:",
               style: TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "UID: ${authViewModel.user?.uid ?? "알 수 없음"}",
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
@@ -43,30 +50,30 @@ class HomeView extends StatelessWidget {
               "Email: ${authViewModel.user?.email ?? "알 수 없음"}",
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
-            SizedBox(height: 32),
-            Divider(),
-            Text(
+            const SizedBox(height: 32),
+            const Divider(),
+            const Text(
               "앱 기능",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
-              icon: Icon(Icons.person),
-              label: Text("프로필 보기"),
+              icon: const Icon(Icons.person),
+              label: const Text("프로필 보기"),
               onPressed: () {
                 // 프로필 보기 화면으로 이동 (구현 필요)
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("프로필 보기 기능 준비 중")),
+                  const SnackBar(content: Text("프로필 보기 기능 준비 중")),
                 );
               },
             ),
             ElevatedButton.icon(
-              icon: Icon(Icons.settings),
-              label: Text("설정"),
+              icon: const Icon(Icons.settings),
+              label: const Text("설정"),
               onPressed: () {
                 // 설정 화면으로 이동 (구현 필요)
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("설정 기능 준비 중")),
+                  const SnackBar(content: Text("설정 기능 준비 중")),
                 );
               },
             ),
