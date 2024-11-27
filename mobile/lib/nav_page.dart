@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:running_mate/screens/home_view.dart';
 import 'package:running_mate/screens/my_routes_page.dart';
-import 'package:running_mate/screens/run_page.dart';
 import 'package:running_mate/screens/shared_routes_page.dart';
+import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class NavPage extends StatefulWidget {
+  const NavPage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _NavPageState createState() => _NavPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _NavPageState extends State<NavPage> {
   int _selectedIndex = 0;
 
   static List<Widget> _pages = <Widget>[
-    const RunPage(),
+    HomeView(),
     const MyRoutesPage(),
     const SharedRoutesPage(),
   ];
@@ -27,6 +29,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final authViewModel = context.watch<AuthViewModel>();
+
+    // 로그아웃 시 로그인 화면으로 리다이렉트
+    if (!authViewModel.isLoggedIn) {
+      Future.microtask(() => Navigator.pushReplacementNamed(context, '/login'));
+    }
+
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
