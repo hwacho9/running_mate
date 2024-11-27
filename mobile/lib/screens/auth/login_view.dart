@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/screens/auth/signup_view.dart';
 import 'package:running_mate/screens/home_view.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 
@@ -28,18 +29,34 @@ class LoginView extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final authViewModel = context.read<AuthViewModel>();
-                await authViewModel.login(
-                  emailController.text,
-                  passwordController.text,
-                );
-                if (authViewModel.user != null) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => HomeView()),
+                try {
+                  await authViewModel.login(
+                    emailController.text,
+                    passwordController.text,
+                  );
+                  if (authViewModel.user != null) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => HomeView()),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("로그인 실패: ${e.toString()}")),
                   );
                 }
               },
               child: Text("로그인"),
+            ),
+            SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => SignupView()),
+                );
+              },
+              child: Text("회원가입"),
             ),
           ],
         ),
