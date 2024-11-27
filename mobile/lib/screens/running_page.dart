@@ -21,7 +21,7 @@ class RunningPage extends StatefulWidget {
 class _RunningPageState extends State<RunningPage>
     with TickerProviderStateMixin {
   LatLng? _currentPosition;
-  int _timeElapsed = 0; // 경과 시간 (초)
+  int _timeElapsed = 0;
   final Map<String, LatLng> _userPositions = {};
   late Timer _timer;
   String? _overtakeMessage; // 추월 메시지
@@ -42,13 +42,32 @@ class _RunningPageState extends State<RunningPage>
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Location services are disabled.')),
+      );
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location permissions are denied.')),
+        );
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Location permissions are permanently denied. Cannot access location.',
+          ),
+        ),
       );
       return;
     }
@@ -76,7 +95,7 @@ class _RunningPageState extends State<RunningPage>
   }
 
   void _updateUserPositions() {
-    final previousRankings = _calculateRankings(); // 이전 랭킹 저장
+    final previousRankings = _calculateRankings();
 
     for (var user in widget.userRecords) {
       final coordinates = user['coordinates'] as List;
@@ -100,8 +119,8 @@ class _RunningPageState extends State<RunningPage>
       }
     }
 
-    final newRankings = _calculateRankings(); // 새로운 랭킹 계산
-    _checkForOvertake(previousRankings, newRankings); // 추월 여부 확인
+    final newRankings = _calculateRankings();
+    _checkForOvertake(previousRankings, newRankings);
   }
 
   void _checkForOvertake(
@@ -111,10 +130,8 @@ class _RunningPageState extends State<RunningPage>
     final newIndex = newRankings.indexWhere((rank) => rank.contains("You"));
 
     if (newIndex < previousIndex) {
-      // 내가 다른 유저를 추월했을 경우
-      _showOverlayMessage("追い越しました !");
+      _showOverlayMessage("追い越しました!");
     } else if (newIndex > previousIndex) {
-      // 다른 유저가 나를 추월했을 경우
       _showOverlayMessage("追い越されました!");
     }
   }
@@ -129,10 +146,8 @@ class _RunningPageState extends State<RunningPage>
       duration: const Duration(milliseconds: 300),
     );
 
-    // 메시지 애니메이션 시작
     _animationController!.forward();
 
-    // 일정 시간 후 메시지 제거
     Future.delayed(const Duration(seconds: 2), () {
       _animationController!.reverse().then((value) {
         setState(() {
@@ -147,7 +162,6 @@ class _RunningPageState extends State<RunningPage>
 
     final distances = <String, double>{};
 
-    // 다른 사용자 거리 계산
     for (var user in widget.userRecords) {
       final name = user['userName'];
       final position = _userPositions[name];
@@ -156,11 +170,9 @@ class _RunningPageState extends State<RunningPage>
       }
     }
 
-    // 내 거리 계산
     distances["You"] =
         _calculateDistance(_currentPosition!, widget.routePoints.last);
 
-    // 거리 기준 정렬 및 랭킹 계산
     final sorted = distances.entries.toList()
       ..sort((a, b) => a.value.compareTo(b.value));
 
@@ -170,7 +182,7 @@ class _RunningPageState extends State<RunningPage>
       sorted.length,
       (index) {
         final isYou = sorted[index].key == "You";
-        final rankText = "${index + 1}등: ${sorted[index].key}";
+        final rankText = "${index + 1}位: ${sorted[index].key}";
         final ratioText = " (${index + 1}/$totalParticipants)";
         return isYou ? "$rankText$ratioText" : rankText;
       },
@@ -197,21 +209,10 @@ class _RunningPageState extends State<RunningPage>
     return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
   }
 
-  String _getRunningPace() {
-    if (_currentPosition == null || _timeElapsed == 0) return "Calculating...";
-    final distance =
-        _calculateDistance(widget.routePoints.first, _currentPosition!);
-    final pace = _timeElapsed / (distance / 1000); // 초/킬로미터
-    final minutes = pace ~/ 60;
-    final seconds = (pace % 60).toInt();
-    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')} min/km";
-  }
-
   @override
   Widget build(BuildContext context) {
     final progressMarkers = <Widget>[];
 
-    // 내 위치 마커 추가
     if (_currentPosition != null) {
       progressMarkers.add(Positioned(
         left: MediaQuery.of(context).size.width *
@@ -220,7 +221,6 @@ class _RunningPageState extends State<RunningPage>
       ));
     }
 
-    // 다른 유저들의 위치 마커 추가
     for (var user in _userPositions.entries) {
       progressMarkers.add(Positioned(
         left:
@@ -235,7 +235,6 @@ class _RunningPageState extends State<RunningPage>
         children: [
           Column(
             children: [
-              // 지도 영역
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.5,
                 child: FlutterMap(
@@ -291,7 +290,6 @@ class _RunningPageState extends State<RunningPage>
                   ],
                 ),
               ),
-              // 진행률 바
               Stack(
                 children: [
                   Container(
@@ -305,7 +303,6 @@ class _RunningPageState extends State<RunningPage>
                   ...progressMarkers,
                 ],
               ),
-              // 실시간 랭킹
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -313,11 +310,7 @@ class _RunningPageState extends State<RunningPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "러닝 시간: ${_getRunningTime()}",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        "러닝 페이스: ${_getRunningPace()}",
+                        "Running Time: ${_getRunningTime()}",
                         style: const TextStyle(fontSize: 16),
                       ),
                       const SizedBox(height: 8.0),

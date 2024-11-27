@@ -132,7 +132,7 @@ class _RunPageState extends State<RunPage> {
         options: MapOptions(
           initialCenter:
               _currentPosition ?? LatLng(34.70, 135.2), // 현재 위치 또는 기본 중심
-          initialZoom: 13.0,
+          initialZoom: 15.0,
           onTap: (tapPosition, latLng) {
             setState(() {
               _routePoints.add(latLng);
