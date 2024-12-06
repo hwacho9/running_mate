@@ -4,7 +4,8 @@ import 'package:provider/provider.dart'; // Provider import
 import 'package:running_mate/firebase_options.dart';
 import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
-import 'package:running_mate/screens/my_routes_page.dart';
+import 'package:running_mate/screens/profile/my_routes_page.dart';
+import 'package:running_mate/screens/running/run_page.dart';
 import 'viewmodels/auth_viewmodel.dart'; // AuthViewModel import
 
 Future<void> main() async {
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
           '/': (context) => const NavPage(),
           '/my-routes': (context) => MyRoutesPage(),
           '/login': (context) => LoginView(),
+          '/run': (context) => const RunPage(),
         },
       ),
     );

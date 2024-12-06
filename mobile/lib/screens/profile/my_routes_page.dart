@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert'; // JSON 변환을 위해 필요
-import 'route_detail_page.dart';
+import '../running/route_detail_page.dart';
 
 class MyRoutesPage extends StatefulWidget {
   const MyRoutesPage({super.key});

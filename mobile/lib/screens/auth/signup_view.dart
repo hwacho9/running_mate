@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:running_mate/screens/home_view.dart';
+import 'package:running_mate/screens/home/home_view.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 
 class SignupView extends StatelessWidget {

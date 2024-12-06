@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:running_mate/screens/home_view.dart';
-import 'package:running_mate/screens/my_routes_page.dart';
-import 'package:running_mate/screens/shared_routes_page.dart';
+import 'package:running_mate/screens/home/home_view.dart';
+import 'package:running_mate/screens/profile/my_routes_page.dart';
+import 'package:running_mate/screens/SNS/shared_routes_page.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 
 class NavPage extends StatefulWidget {

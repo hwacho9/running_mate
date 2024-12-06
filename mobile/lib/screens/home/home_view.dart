@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
-import '../viewmodels/auth_viewmodel.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 
 class HomeView extends StatelessWidget {
   @override
@@ -75,6 +75,14 @@ class HomeView extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("설정 기능 준비 중")),
                 );
+              },
+            ),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.settings),
+              label: const Text("running"),
+              onPressed: () {
+                // 설정 화면으로 이동 (구현 필요)
+                Navigator.pushNamed(context, '/run');
               },
             ),
           ],
