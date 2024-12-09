@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/data/regions.dart';
 import 'package:running_mate/screens/home/home_view.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
+import 'package:running_mate/widgets/inputField/DropdownButtonFormField.dart';
 import 'package:running_mate/widgets/inputField/InputFormField.dart';
 
 class SignupView2 extends StatelessWidget {
@@ -25,23 +28,38 @@ class SignupView2 extends StatelessWidget {
           children: [
             InputFormField(
               controller: nicknameController,
-              labelText: "닉네임",
+              labelText: "ニックネーム",
               keyboardType: TextInputType.text,
             ),
             const SizedBox(height: 16),
+            DropdownFormField(
+              labelText: "地域",
+              value:
+                  regionController.text.isEmpty ? null : regionController.text,
+              items: regions,
+              onChanged: (String? newValue) {
+                regionController.text = newValue ?? "";
+              },
+            ),
+            const SizedBox(height: 16),
+            DropdownFormField(
+              labelText: "性別",
+              value:
+                  genderController.text.isEmpty ? null : genderController.text,
+              items: const ["男性", "女性", "その他"],
+              onChanged: (String? newValue) {
+                genderController.text = newValue ?? "";
+              },
+            ),
+            const SizedBox(height: 16),
             InputFormField(
-              controller: regionController,
-              labelText: "지역",
-              keyboardType: TextInputType.text,
-            ),
-            TextField(
-              controller: genderController,
-              decoration: InputDecoration(labelText: "성별"),
-            ),
-            TextField(
               controller: ageController,
-              decoration: InputDecoration(labelText: "나이"),
+              labelText: "年齢",
+              hintText: "年齢を入力してください", // 힌트 텍스트
               keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly, // 숫자만 입력 가능
+              ],
             ),
             SizedBox(height: 20),
             RectangleButton(

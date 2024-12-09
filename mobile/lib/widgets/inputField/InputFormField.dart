@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class InputFormField extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final bool isPassword;
   final TextInputType keyboardType;
+  final String? hintText; // 힌트 텍스트
+  final List<TextInputFormatter>? inputFormatters; // 입력 제한
 
   const InputFormField({
     Key? key,
@@ -12,6 +15,8 @@ class InputFormField extends StatefulWidget {
     required this.labelText,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
+    this.hintText,
+    this.inputFormatters,
   }) : super(key: key);
 
   @override
@@ -27,6 +32,7 @@ class _InputFormFieldState extends State<InputFormField> {
       controller: widget.controller,
       decoration: InputDecoration(
         labelText: widget.labelText,
+        hintText: widget.hintText, // 힌트 텍스트 추가
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -45,6 +51,7 @@ class _InputFormFieldState extends State<InputFormField> {
       ),
       obscureText: widget.isPassword ? _isObscure : false,
       keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters, // 입력 제한 추가
     );
   }
 }
