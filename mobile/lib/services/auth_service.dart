@@ -15,19 +15,44 @@ class AuthService {
         password: password,
       );
 
-      // Firestore에 사용자 정보 저장
       final user = userCredential.user;
+
       if (user != null) {
         await _firestore.collection('Users').doc(user.uid).set({
           'email': email,
           'uid': user.uid,
           'createdAt': FieldValue.serverTimestamp(),
         });
-      }
 
-      return UserModel(uid: user?.uid, email: user?.email);
+        return UserModel(
+          uid: user.uid,
+          email: user.email ?? "", // null 방지
+        );
+      }
+      return null;
     } catch (e) {
       print("Signup Error: $e");
+      rethrow;
+    }
+  }
+
+  // 추가 정보 저장
+  Future<void> saveAdditionalDetails({
+    required String uid,
+    required String nickname,
+    required String region,
+    required String gender,
+    required int age,
+  }) async {
+    try {
+      await _firestore.collection('Users').doc(uid).update({
+        'nickname': nickname,
+        'region': region,
+        'gender': gender,
+        'age': age,
+      });
+    } catch (e) {
+      print("Save Additional Details Error: $e");
       rethrow;
     }
   }
@@ -41,7 +66,8 @@ class AuthService {
         password: password,
       );
       return UserModel(
-          uid: userCredential.user?.uid, email: userCredential.user?.email);
+          uid: userCredential.user!.uid,
+          email: userCredential.user!.email ?? "");
     } catch (e) {
       print("Login Error: $e");
       rethrow;
@@ -57,7 +83,7 @@ class AuthService {
   UserModel? get currentUser {
     User? user = _firebaseAuth.currentUser;
     if (user != null) {
-      return UserModel(uid: user.uid, email: user.email);
+      return UserModel(uid: user.uid, email: user.email ?? "");
     }
     return null;
   }

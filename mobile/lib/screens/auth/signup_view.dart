@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:running_mate/screens/home/home_view.dart';
+import 'package:running_mate/screens/auth/signup_view2.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 
 class SignupView extends StatelessWidget {
@@ -30,13 +30,15 @@ class SignupView extends StatelessWidget {
                 final authViewModel = context.read<AuthViewModel>();
                 try {
                   await authViewModel.signup(
-                    emailController.text,
-                    passwordController.text,
+                    emailController.text.trim(),
+                    passwordController.text.trim(),
                   );
                   if (authViewModel.user != null) {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => HomeView()),
+                      MaterialPageRoute(
+                        builder: (_) => SignupView2(),
+                      ),
                     );
                   }
                 } catch (e) {
@@ -45,7 +47,7 @@ class SignupView extends StatelessWidget {
                   );
                 }
               },
-              child: Text("회원가입"),
+              child: Text("다음 단계로"),
             ),
           ],
         ),
