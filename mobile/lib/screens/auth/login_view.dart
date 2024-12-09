@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/screens/auth/signup_view.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/widgets/inputField/InputFormField.dart';
 
 class LoginView extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -11,19 +12,24 @@ class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("로그인")),
+      appBar: AppBar(
+        title: const Text("로그인"),
+        automaticallyImplyLeading: false,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
+            InputFormField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: "이메일"),
+              labelText: "이메일",
+              keyboardType: TextInputType.emailAddress,
             ),
-            TextField(
+            const SizedBox(height: 16),
+            InputFormField(
               controller: passwordController,
-              decoration: const InputDecoration(labelText: "비밀번호"),
-              obscureText: true,
+              labelText: "비밀번호",
+              isPassword: true,
             ),
             const SizedBox(height: 20),
             ElevatedButton(

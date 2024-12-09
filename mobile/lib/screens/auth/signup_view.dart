@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/auth/signup_view2.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/widgets/inputField/InputFormField.dart';
 
 class SignupView extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -15,16 +16,18 @@ class SignupView extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
+            InputFormField(
               controller: emailController,
-              decoration: InputDecoration(labelText: "이메일"),
+              labelText: "이메일",
+              keyboardType: TextInputType.emailAddress,
             ),
-            TextField(
+            const SizedBox(height: 16),
+            InputFormField(
               controller: passwordController,
-              decoration: InputDecoration(labelText: "비밀번호"),
-              obscureText: true,
+              labelText: "비밀번호",
+              isPassword: true,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 final authViewModel = context.read<AuthViewModel>();
