@@ -59,6 +59,9 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> login(String email, String password) async {
     try {
       _user = await _authService.login(email, password);
+
+      // 로그인 후 추가 정보 로드
+      _user = await _authService.currentUser;
       notifyListeners();
     } catch (e) {
       print("Login Error: $e");
@@ -79,8 +82,12 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   // 현재 사용자 로드
-  void loadCurrentUser() {
-    _user = _authService.currentUser;
-    notifyListeners();
+  Future<void> loadCurrentUser() async {
+    try {
+      _user = await _authService.currentUser;
+      notifyListeners();
+    } catch (e) {
+      print("Error loading current user: $e");
+    }
   }
 }

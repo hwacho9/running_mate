@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/data/regions.dart';
-import 'package:running_mate/screens/home/home_view.dart';
+import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
 import 'package:running_mate/widgets/inputField/DropdownButtonFormField.dart';
@@ -14,11 +14,13 @@ class SignupView2 extends StatelessWidget {
   final TextEditingController genderController = TextEditingController();
   final TextEditingController ageController = TextEditingController();
 
+  SignupView2({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("추가 정보 입력"),
+        title: const Text("추가 정보 입력"),
         automaticallyImplyLeading: false,
       ),
       body: Padding(
@@ -61,7 +63,7 @@ class SignupView2 extends StatelessWidget {
                 FilteringTextInputFormatter.digitsOnly, // 숫자만 입력 가능
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             RectangleButton(
               text: "アカウントを作成",
               onPressed: () async {
@@ -85,7 +87,7 @@ class SignupView2 extends StatelessWidget {
                     // HomeView로 이동
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => HomeView()),
+                      MaterialPageRoute(builder: (_) => const NavPage()),
                     );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -94,7 +96,7 @@ class SignupView2 extends StatelessWidget {
                   }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("모든 필드를 올바르게 입력해주세요.")),
+                    const SnackBar(content: Text("모든 필드를 올바르게 입력해주세요.")),
                   );
                 }
               },

@@ -80,10 +80,30 @@ class AuthService {
   }
 
   // 현재 사용자
-  UserModel? get currentUser {
-    User? user = _firebaseAuth.currentUser;
-    if (user != null) {
-      return UserModel(uid: user.uid, email: user.email ?? "");
+  Future<UserModel?> get currentUser async {
+    User? firebaseUser = _firebaseAuth.currentUser;
+
+    if (firebaseUser != null) {
+      try {
+        DocumentSnapshot<Map<String, dynamic>> userDoc =
+            await _firestore.collection('Users').doc(firebaseUser.uid).get();
+
+        if (userDoc.exists) {
+          Map<String, dynamic>? data = userDoc.data();
+          return UserModel(
+            uid: firebaseUser.uid,
+            email: data?['email'] ?? firebaseUser.email ?? "",
+            nickname: data?['nickname'],
+            region: data?['region'],
+            gender: data?['gender'],
+            age: data?['age'],
+          );
+        } else {
+          print("User document not found!");
+        }
+      } catch (e) {
+        print("Error fetching current user: $e");
+      }
     }
     return null;
   }

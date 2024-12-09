@@ -8,6 +8,12 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final authViewModel = context.watch<AuthViewModel>();
 
+    print(authViewModel.user?.nickname);
+
+    if (authViewModel.user == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("홈 화면"),
@@ -33,7 +39,7 @@ class HomeView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "안녕하세요, ${authViewModel.user?.email ?? "사용자"}님!",
+              "안녕하세요, ${authViewModel.user?.nickname ?? "사용자"}님!",
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
