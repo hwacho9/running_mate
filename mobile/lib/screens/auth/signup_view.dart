@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/auth/signup_view2.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
 import 'package:running_mate/widgets/inputField/InputFormField.dart';
 
 class SignupView extends StatelessWidget {
@@ -18,17 +19,18 @@ class SignupView extends StatelessWidget {
           children: [
             InputFormField(
               controller: emailController,
-              labelText: "이메일",
+              labelText: "メールアドレス",
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
             InputFormField(
               controller: passwordController,
-              labelText: "비밀번호",
+              labelText: "パスワード",
               isPassword: true,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            RectangleButton(
+              text: "次へ",
               onPressed: () async {
                 final authViewModel = context.read<AuthViewModel>();
                 try {
@@ -50,7 +52,6 @@ class SignupView extends StatelessWidget {
                   );
                 }
               },
-              child: Text("다음 단계로"),
             ),
           ],
         ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/home/home_view.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
+import 'package:running_mate/widgets/inputField/InputFormField.dart';
 
 class SignupView2 extends StatelessWidget {
   final TextEditingController nicknameController = TextEditingController();
@@ -21,13 +23,16 @@ class SignupView2 extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
+            InputFormField(
               controller: nicknameController,
-              decoration: InputDecoration(labelText: "닉네임"),
+              labelText: "닉네임",
+              keyboardType: TextInputType.text,
             ),
-            TextField(
+            const SizedBox(height: 16),
+            InputFormField(
               controller: regionController,
-              decoration: InputDecoration(labelText: "지역"),
+              labelText: "지역",
+              keyboardType: TextInputType.text,
             ),
             TextField(
               controller: genderController,
@@ -39,7 +44,8 @@ class SignupView2 extends StatelessWidget {
               keyboardType: TextInputType.number,
             ),
             SizedBox(height: 20),
-            ElevatedButton(
+            RectangleButton(
+              text: "アカウントを作成",
               onPressed: () async {
                 final nickname = nicknameController.text.trim();
                 final region = regionController.text.trim();
@@ -74,7 +80,6 @@ class SignupView2 extends StatelessWidget {
                   );
                 }
               },
-              child: Text("회원가입 완료"),
             ),
           ],
         ),

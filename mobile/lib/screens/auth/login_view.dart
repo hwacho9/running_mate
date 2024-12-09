@@ -3,12 +3,17 @@ import 'package:provider/provider.dart';
 import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/screens/auth/signup_view.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
 import 'package:running_mate/widgets/inputField/InputFormField.dart';
 
+// ignore: must_be_immutable
 class LoginView extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  bool isLoading = false;
+
+  LoginView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,17 +27,20 @@ class LoginView extends StatelessWidget {
           children: [
             InputFormField(
               controller: emailController,
-              labelText: "이메일",
+              labelText: "メールアドレス",
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
             InputFormField(
               controller: passwordController,
-              labelText: "비밀번호",
+              labelText: "パスワード",
               isPassword: true,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            RectangleButton(
+              text: "ログイン",
+              isLoading: isLoading,
+              isDisabled: isLoading,
               onPressed: () async {
                 final authViewModel = context.read<AuthViewModel>();
                 try {
@@ -48,21 +56,22 @@ class LoginView extends StatelessWidget {
                   }
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("로그인 실패: ${e.toString()}")),
+                    SnackBar(content: Text("ログイン失敗: ${e.toString()}")),
                   );
                 }
               },
-              child: const Text("로그인"),
             ),
-            const SizedBox(height: 20),
-            TextButton(
+            const SizedBox(height: 10),
+            RectangleButton(
+              color: Colors.white,
+              textColor: Colors.black,
+              text: "アカウントを作成する",
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => SignupView()),
                 );
               },
-              child: const Text("회원가입"),
             ),
           ],
         ),
