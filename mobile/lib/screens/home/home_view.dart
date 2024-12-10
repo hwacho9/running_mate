@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
+import 'package:running_mate/screens/profile/profile_view.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 
 class HomeView extends StatelessWidget {
@@ -18,6 +19,17 @@ class HomeView extends StatelessWidget {
       appBar: AppBar(
         title: const Text("홈 화면"),
         automaticallyImplyLeading: false, // 뒤로가기 버튼 제거
+        leading: IconButton(
+          icon: const Icon(Icons.person), // 프로필 모양 아이콘
+          onPressed: () {
+            // 프로필 화면으로 이동
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const ProfileView()), // ProfileView로 변경
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -39,7 +51,7 @@ class HomeView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "안녕하세요, ${authViewModel.user?.nickname ?? "사용자"}님!",
+              "안녕하세요, ${authViewModel.user?.nickname ?? "사용자"}さん!",
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
