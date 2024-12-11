@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/home/home_view.dart';
-import 'package:running_mate/screens/running/MyTracksView.dart';
+import 'package:running_mate/screens/running/mytrack_view.dart';
 import 'package:running_mate/screens/SNS/shared_routes_page.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 

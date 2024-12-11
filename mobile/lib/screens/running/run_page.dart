@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:running_mate/screens/running/saveRouteDetailView.dart';
+import 'package:running_mate/screens/running/saveroutedetail_view.dart';
 import 'package:running_mate/viewmodels/RunViewModel.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:running_mate/utils/direction_util.dart'; // 새 유틸리티 파일 import
 
 class RunPage extends StatefulWidget {
   const RunPage({super.key});
@@ -42,7 +43,6 @@ class _RunPageState extends State<RunPage> {
   }
 
   void _startHeadingUpdates() {
-    // 위치 및 방향 스트림 수신
     _positionSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     ).listen((Position position) {
@@ -56,7 +56,7 @@ class _RunPageState extends State<RunPage> {
 
   @override
   void dispose() {
-    _positionSubscription?.cancel(); // 스트림 구독 취소
+    _positionSubscription?.cancel();
     super.dispose();
   }
 
@@ -127,7 +127,7 @@ class _RunPageState extends State<RunPage> {
                   width: 50,
                   height: 50,
                   child: Transform.rotate(
-                    angle: _heading * (3.14159265359 / 180),
+                    angle: DirectionUtil.headingToRadians(_heading), // 컴포넌트 사용
                     child: const Icon(
                       Icons.navigation,
                       color: Colors.blue,

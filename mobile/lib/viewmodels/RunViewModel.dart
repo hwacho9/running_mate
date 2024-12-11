@@ -3,10 +3,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:running_mate/utils/regionConverter.dart';
-import '../services/Trackservice.dart';
+import '../services/track_service.dart';
 
 class RunViewModel extends ChangeNotifier {
-  final Trackservice _runService;
+  Trackservice _runService;
 
   RunViewModel(this._runService);
 
