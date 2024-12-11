@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:running_mate/screens/running/running_result_view.dart';
 import 'package:running_mate/utils/direction_util.dart';
 import 'package:running_mate/viewmodels/running_view_model.dart';
+import 'package:running_mate/widgets/Buttons/CircleFloatingActionButton.dart';
 
 class RunningView extends StatefulWidget {
   const RunningView({super.key});
@@ -82,7 +83,7 @@ class _RunningViewState extends State<RunningView> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CircleFloatingActionButton(
         onPressed: () {
           final endTime = DateTime.now();
           Navigator.push(
@@ -97,7 +98,7 @@ class _RunningViewState extends State<RunningView> {
             ),
           );
         },
-        child: const Icon(Icons.check),
+        icon: Icons.check,
       ),
     );
   }

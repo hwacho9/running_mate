@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/home/widgets/MiniMap.dart';
 import 'package:running_mate/screens/profile/profile_view.dart';
-import '../../viewmodels/auth_viewmodel.dart';
+import '../../viewmodels/auth_view_model.dart';
 
 class HomeView extends StatelessWidget {
   @override

@@ -9,7 +9,8 @@ import 'package:running_mate/screens/running/save_routedetail_view.dart';
 import 'package:running_mate/viewmodels/run_view_model.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:running_mate/utils/direction_util.dart'; // 새 유틸리티 파일 import
+import 'package:running_mate/utils/direction_util.dart';
+import 'package:running_mate/widgets/Buttons/CircleFloatingActionButton.dart'; // 새 유틸리티 파일 import
 
 class RunView extends StatefulWidget {
   const RunView({super.key});
@@ -146,7 +147,7 @@ class _RunViewState extends State<RunView> {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 45.0), // 버튼 위로 올리기
-              child: FloatingActionButton(
+              child: CircleFloatingActionButton(
                 onPressed: () {
                   // 스타트 버튼 동작
                   Navigator.push(
@@ -156,15 +157,15 @@ class _RunViewState extends State<RunView> {
                     ),
                   );
                 },
-                child: const Icon(Icons.play_arrow),
+                icon: Icons.play_arrow,
               ),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CircleFloatingActionButton(
         onPressed: viewModel.clearRoute,
-        child: const Icon(Icons.clear),
+        icon: Icons.clear,
       ),
     );
   }

@@ -4,7 +4,7 @@ import 'package:running_mate/screens/running/save_routedetail_view.dart';
 import 'package:running_mate/utils/check_language_util.dart';
 import 'package:running_mate/utils/get_region_util.dart';
 import 'package:running_mate/utils/regionConverter.dart';
-import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:running_mate/viewmodels/running_result_view_model.dart';
 import 'package:running_mate/screens/running/widgets/result_minimap.dart';
 

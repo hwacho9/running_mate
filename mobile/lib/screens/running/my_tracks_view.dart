@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/running/widgets/routelist_tile.dart';
-import 'package:running_mate/viewmodels/MyTracksViewModel.dart';
+import 'package:running_mate/viewmodels/my_tracks_view_model.dart';
 
 class MyTracksView extends StatefulWidget {
   const MyTracksView({super.key});

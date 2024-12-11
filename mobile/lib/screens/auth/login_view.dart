@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/screens/auth/signup_view.dart';
-import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
 import 'package:running_mate/widgets/inputField/InputFormField.dart';
 
