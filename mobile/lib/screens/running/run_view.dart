@@ -6,19 +6,19 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/running/running_view.dart';
 import 'package:running_mate/screens/running/save_routedetail_view.dart';
-import 'package:running_mate/viewmodels/RunViewModel.dart';
-import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/viewmodels/run_view_model.dart';
+import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:running_mate/utils/direction_util.dart'; // 새 유틸리티 파일 import
 
-class RunPage extends StatefulWidget {
-  const RunPage({super.key});
+class RunView extends StatefulWidget {
+  const RunView({super.key});
 
   @override
-  _RunPageState createState() => _RunPageState();
+  _RunViewState createState() => _RunViewState();
 }
 
-class _RunPageState extends State<RunPage> {
+class _RunViewState extends State<RunView> {
   late final MapController _mapController;
   StreamSubscription<Position>? _positionSubscription;
   double _heading = 0.0;
