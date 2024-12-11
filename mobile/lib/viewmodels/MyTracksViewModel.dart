@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:running_mate/models/RouteModel.dart';
+import 'package:running_mate/models/route_model.dart';
 import 'package:running_mate/services/track_service.dart';
 
 class MyTracksViewModel extends ChangeNotifier {

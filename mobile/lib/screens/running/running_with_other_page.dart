@@ -4,21 +4,21 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
-class RunningPage extends StatefulWidget {
+class RunningWithOtherPage extends StatefulWidget {
   final List<LatLng> routePoints;
   final List<Map<String, dynamic>> userRecords;
 
-  const RunningPage({
+  const RunningWithOtherPage({
     super.key,
     required this.routePoints,
     required this.userRecords,
   });
 
   @override
-  _RunningPageState createState() => _RunningPageState();
+  _RunningWithOtherPageState createState() => _RunningWithOtherPageState();
 }
 
-class _RunningPageState extends State<RunningPage>
+class _RunningWithOtherPageState extends State<RunningWithOtherPage>
     with TickerProviderStateMixin {
   LatLng? _currentPosition;
   int _timeElapsed = 0;

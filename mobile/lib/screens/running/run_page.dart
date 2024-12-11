@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:running_mate/screens/running/saveroutedetail_view.dart';
+import 'package:running_mate/screens/running/running_view.dart';
+import 'package:running_mate/screens/running/save_routedetail_view.dart';
 import 'package:running_mate/viewmodels/RunViewModel.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 import 'package:geolocator/geolocator.dart';
@@ -96,47 +97,69 @@ class _RunPageState extends State<RunPage> {
           ),
         ],
       ),
-      body: FlutterMap(
-        mapController: _mapController,
-        options: MapOptions(
-          initialCenter: viewModel.currentPosition ?? LatLng(34.70, 135.2),
-          initialZoom: 18.0,
-          onTap: (tapPosition, latLng) {
-            viewModel.addRoutePoint(latLng);
-          },
-        ),
+      body: Stack(
         children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.example.app',
-          ),
-          PolylineLayer(
-            polylines: [
-              Polyline(
-                points: viewModel.routePoints,
-                strokeWidth: 4.0,
-                color: Colors.red,
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: viewModel.currentPosition ?? LatLng(34.70, 135.2),
+              initialZoom: 18.0,
+              onTap: (tapPosition, latLng) {
+                viewModel.addRoutePoint(latLng);
+              },
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.app',
               ),
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: viewModel.routePoints,
+                    strokeWidth: 4.0,
+                    color: Colors.red,
+                  ),
+                ],
+              ),
+              if (viewModel.currentPosition != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: viewModel.currentPosition!,
+                      width: 50,
+                      height: 50,
+                      child: Transform.rotate(
+                        angle: DirectionUtil.headingToRadians(_heading),
+                        child: const Icon(
+                          Icons.navigation,
+                          color: Colors.blue,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
-          if (viewModel.currentPosition != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: viewModel.currentPosition!,
-                  width: 50,
-                  height: 50,
-                  child: Transform.rotate(
-                    angle: DirectionUtil.headingToRadians(_heading), // 컴포넌트 사용
-                    child: const Icon(
-                      Icons.navigation,
-                      color: Colors.blue,
-                      size: 30,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 45.0), // 버튼 위로 올리기
+              child: FloatingActionButton(
+                onPressed: () {
+                  // 스타트 버튼 동작
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RunningView(), // 새 런닝 페이지
                     ),
-                  ),
-                ),
-              ],
+                  );
+                },
+                child: const Icon(Icons.play_arrow),
+              ),
             ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(

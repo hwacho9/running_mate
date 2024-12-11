@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'running_page.dart';
+import 'package:running_mate/screens/running/running_with_other_page.dart';
 
 class RouteDetailPage extends StatelessWidget {
   final String routeName;
@@ -125,7 +125,7 @@ class RouteDetailPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RunningPage(
+                          builder: (context) => RunningWithOtherPage(
                             routePoints: routePoints,
                             userRecords: mockUserRecords,
                           ),
