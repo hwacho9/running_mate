@@ -4,7 +4,7 @@ import 'package:provider/provider.dart'; // Provider import
 import 'package:running_mate/firebase_options.dart';
 import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
-import 'package:running_mate/screens/running/my_tracks_view.dart';
+import 'package:running_mate/screens/tracks/my_tracks_view.dart';
 import 'package:running_mate/screens/running/run_view.dart';
 import 'package:running_mate/screens/running/running_result_view.dart';
 import 'package:running_mate/services/track_service.dart';

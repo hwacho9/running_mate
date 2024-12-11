@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/home/home_view.dart';
-import 'package:running_mate/screens/running/my_tracks_view.dart';
+import 'package:running_mate/screens/running/run_view.dart';
+import 'package:running_mate/screens/tracks/my_tracks_view.dart';
 import 'package:running_mate/screens/SNS/shared_routes_page.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 
@@ -17,7 +18,8 @@ class _NavPageState extends State<NavPage> {
 
   static List<Widget> _pages = <Widget>[
     HomeView(),
-    const MyTracksView(),
+    MyTracksView(),
+    const RunView(),
     const SharedRoutesPage(),
   ];
 
@@ -39,6 +41,7 @@ class _NavPageState extends State<NavPage> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed, // Fixed type으로 설정
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -46,10 +49,14 @@ class _NavPageState extends State<NavPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'My Routes',
+            label: 'Tracks',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.map),
+            label: 'Map',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
             label: 'SNS',
           ),
         ],
