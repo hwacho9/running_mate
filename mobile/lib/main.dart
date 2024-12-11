@@ -9,6 +9,7 @@ import 'package:running_mate/screens/running/run_page.dart';
 import 'package:running_mate/services/track_service.dart';
 import 'package:running_mate/viewmodels/MyTracksViewModel.dart';
 import 'package:running_mate/viewmodels/RunViewModel.dart';
+import 'package:running_mate/viewmodels/running_view_model.dart';
 import 'viewmodels/auth_viewmodel.dart'; // AuthViewModel import
 
 Future<void> main() async {
@@ -36,6 +37,9 @@ class MyApp extends StatelessWidget {
           create: (_) => MyTracksViewModel(
             Trackservice(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RunningViewModel(),
         ),
       ],
       child: MaterialApp(
