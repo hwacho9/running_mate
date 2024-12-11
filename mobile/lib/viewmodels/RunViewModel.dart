@@ -1,7 +1,8 @@
-// viewmodels/run_viewmodel.dart
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:running_mate/utils/regionConverter.dart';
 
 import '../services/run_service.dart';
 
@@ -12,27 +13,31 @@ class RunViewModel extends ChangeNotifier {
 
   List<LatLng> _routePoints = [];
   LatLng? _currentPosition;
+  String _region = "";
+  double _distance = 0.0;
 
   List<LatLng> get routePoints => _routePoints;
   LatLng? get currentPosition => _currentPosition;
+  String get region => _region;
+  double get distance => _distance;
 
-  // 아래 값들은 실제 비즈니스 로직에 따라 설정하거나
-  // 외부로부터 주입받을 수 있습니다.
   String name = "MyTrack";
-  String creatorId = ""; // 로그인된 사용자 UID를 나중에 설정
+  String creatorId = "";
   String description = "Test Description";
-  String region = "Seoul";
-  double distance = 0.0;
 
   Future<void> init(String creatorId) async {
-    this.creatorId = creatorId; // 로그인된 사용자의 UID 설정
+    this.creatorId = creatorId;
+
     await _requestLocationPermission();
+    if (_currentPosition != null) {
+      _routePoints.add(_currentPosition!); // 초기 위치를 경로에 추가
+      await _updateRegion(); // 첫 번째 경로 좌표를 기반으로 지역 정보 업데이트
+    }
   }
 
   Future<void> _requestLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // 서비스 비활성화 상태 처리 (UI에서 Snackbar 처리 가능)
       return;
     }
 
@@ -40,13 +45,11 @@ class RunViewModel extends ChangeNotifier {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // 권한 거부 상태 처리
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // 권한 영구 거부 상태 처리
       return;
     }
 
@@ -64,29 +67,70 @@ class RunViewModel extends ChangeNotifier {
   }
 
   void addRoutePoint(LatLng point) {
-    _routePoints.add(point);
-    // 거리 계산 로직 추가 가능 (예: 마지막 포인트와의 거리 계산하여 distance 업데이트)
+    if (_routePoints.isEmpty) {
+      // 첫 번째 포인트 추가 시 지역 정보 업데이트
+      _routePoints.add(point);
+      _updateRegion(); // 첫 번째 좌표 기반으로 지역 정보 업데이트
+    } else {
+      // 두 번째 이후 포인트부터 거리 계산
+      final Distance distanceCalc = Distance();
+      final lastPoint = _routePoints.last;
+      final double segmentDistance = distanceCalc(
+        LatLng(lastPoint.latitude, lastPoint.longitude),
+        LatLng(point.latitude, point.longitude),
+      );
+      _distance += segmentDistance;
+      _routePoints.add(point);
+    }
+
     notifyListeners();
+  }
+
+  Future<void> _updateRegion() async {
+    if (_routePoints.isEmpty) return;
+
+    final firstPoint = _routePoints.first;
+
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        firstPoint.latitude,
+        firstPoint.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        // 첫 번째 좌표 기반 지역 정보 업데이트
+        _region = placemark.administrativeArea ?? "";
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Error retrieving region: $e");
+    }
   }
 
   Future<bool> saveRoute() async {
     if (_routePoints.isEmpty) return false;
 
+    final translatedRegion = convertKoreanToJapanese(_region);
+
     await _runService.saveTrack(
       name: name,
       creatorId: creatorId,
       description: description,
-      region: region,
-      distance: distance,
+      region: translatedRegion,
+      distance: _distance,
       coordinates: _routePoints,
     );
     _routePoints.clear();
+    _distance = 0.0;
     notifyListeners();
     return true;
   }
 
   void clearRoute() {
     _routePoints.clear();
+    _distance = 0.0;
+    _region = ""; // 지역 정보 초기화
     notifyListeners();
   }
 }
