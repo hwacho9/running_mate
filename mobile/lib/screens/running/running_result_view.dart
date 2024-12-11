@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/screens/running/save_routedetail_view.dart';
+import 'package:running_mate/utils/check_language_util.dart';
+import 'package:running_mate/utils/get_region_util.dart';
+import 'package:running_mate/utils/regionConverter.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 import 'package:running_mate/viewmodels/running_result_view_model.dart';
 import 'package:running_mate/screens/running/widgets/result_minimap.dart';
@@ -82,38 +86,74 @@ class RunningResultView extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () async {
-                final authViewModel = context.read<AuthViewModel>();
-                final userId = authViewModel.user?.uid ?? '';
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Saveroutedetailview(
+                      onSave: (name, description) async {
+                        final authViewModel = context.read<AuthViewModel>();
+                        final userId = authViewModel.user?.uid ?? '';
 
-                if (userId.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('User ID is missing')),
-                  );
-                  return;
-                }
+                        if (userId.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('User ID is missing')),
+                          );
+                          return;
+                        }
 
-                try {
-                  await viewModel.saveTrackWithUserRecord(
-                    userId: userId,
-                    startTime: startTime,
-                    endTime: endTime,
-                    distance: totalDistance,
-                    coordinates: coordinates,
-                    trackName: 'My Track',
-                    description: 'A beautiful running track',
-                    region: 'Seoul', // 지역 정보
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Track and user record saved')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Failed to save track and record')),
-                  );
-                }
+                        try {
+                          // 리전 정보 가져오기
+                          if (coordinates.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('No coordinates available')),
+                            );
+                            return;
+                          }
+
+                          final firstPoint = coordinates.first;
+                          final region =
+                              await RegionHelper.getRegionFromCoordinates(
+                            firstPoint['lat'],
+                            firstPoint['lng'],
+                          );
+
+                          final translatedRegion =
+                              CheckLanguageUtil.isKoreanRegion(region)
+                                  ? convertKoreanToJapanese(region)
+                                  : region;
+
+                          // 저장 로직 실행
+                          await viewModel.saveTrackWithUserRecord(
+                            userId: userId,
+                            startTime: startTime,
+                            endTime: endTime,
+                            distance: totalDistance,
+                            coordinates: coordinates,
+                            trackName: name,
+                            description: description,
+                            region: translatedRegion,
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Track and user record saved successfully'),
+                            ),
+                          );
+                          Navigator.pop(context); // 저장 완료 후 이전 화면으로 이동
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Failed to save track and record')),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                );
               },
               child: const Text('Save Track and User Record'),
             ),

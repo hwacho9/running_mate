@@ -27,7 +27,6 @@ class _RunningViewState extends State<RunningView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<RunningViewModel>();
-    print(viewModel.coordinates);
     // 위치를 가져오는 중이면 로딩 상태를 표시
     if (viewModel.currentPosition == null) {
       return const Scaffold(

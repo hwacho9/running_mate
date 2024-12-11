@@ -21,7 +21,7 @@ class RouteListTile extends StatelessWidget {
       subtitle: Text(
         distance >= 1000
             ? '${(distance / 1000).toStringAsFixed(1)} km'
-            : '${distance.toStringAsFixed(0)} m',
+            : '${distance.toStringAsFixed(2)} m',
       ),
       onTap: () {
         Navigator.push(

@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:running_mate/utils/check_language_util.dart';
+import 'package:running_mate/utils/get_region_util.dart';
 import 'package:running_mate/utils/regionConverter.dart';
 import '../services/track_service.dart';
 
@@ -90,27 +92,23 @@ class RunViewModel extends ChangeNotifier {
 
     final firstPoint = _routePoints.first;
 
-    try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        firstPoint.latitude,
-        firstPoint.longitude,
-      );
+    final region = await RegionHelper.getRegionFromCoordinates(
+      firstPoint.latitude,
+      firstPoint.longitude,
+    );
 
-      if (placemarks.isNotEmpty) {
-        final placemark = placemarks.first;
-        // 첫 번째 좌표 기반 지역 정보 업데이트
-        _region = placemark.administrativeArea ?? "";
-        notifyListeners();
-      }
-    } catch (e) {
-      print("Error retrieving region: $e");
-    }
+    // 원본 지역 정보 저장
+    _region = region;
+    notifyListeners();
   }
 
   Future<bool> saveRoute() async {
     if (_routePoints.isEmpty) return false;
 
-    final translatedRegion = convertKoreanToJapanese(_region);
+    // 한국어일 경우에만 변환
+    final translatedRegion = CheckLanguageUtil.isKoreanRegion(_region)
+        ? convertKoreanToJapanese(_region)
+        : _region;
 
     await _runService.saveTrack(
       name: name,
@@ -120,6 +118,7 @@ class RunViewModel extends ChangeNotifier {
       distance: _distance,
       coordinates: _routePoints,
     );
+
     _routePoints.clear();
     _distance = 0.0;
     notifyListeners();
