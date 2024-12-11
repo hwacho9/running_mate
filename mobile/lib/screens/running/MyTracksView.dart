@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/screens/running/widgets/RouteListTile.dart';
 import 'package:running_mate/viewmodels/MyTracksViewModel.dart';
-import 'route_detail_page.dart';
 
 class MyTracksView extends StatefulWidget {
   const MyTracksView({super.key});
@@ -35,20 +35,10 @@ class _MyTracksViewState extends State<MyTracksView> {
                   itemCount: viewModel.routes.length,
                   itemBuilder: (context, index) {
                     final route = viewModel.routes[index];
-                    return ListTile(
-                      title: Text(route.name),
-                      subtitle: Text('${route.coordinates.length} points'),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RouteDetailPage(
-                              routeName: route.name,
-                              routePoints: route.coordinates,
-                            ),
-                          ),
-                        );
-                      },
+                    return RouteListTile(
+                      name: route.name,
+                      distance: route.distance,
+                      coordinates: route.coordinates,
                     );
                   },
                 ),
