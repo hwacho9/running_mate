@@ -1,9 +1,12 @@
 // services/run_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:running_mate/models/RouteModel.dart';
 
-class RunService {
+class Trackservice {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> saveTrack({
     required String name,
@@ -27,5 +30,21 @@ class RunService {
       'created_at': FieldValue.serverTimestamp(),
       'coordinates': coordList,
     });
+  }
+
+  Future<List<RouteModel>> fetchTracks() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception("User not logged in");
+    }
+
+    final snapshot = await _firestore
+        .collection('Tracks')
+        .where('creator_id', isEqualTo: user.uid)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => RouteModel.fromFirestore(doc.id, doc.data()))
+        .toList();
   }
 }

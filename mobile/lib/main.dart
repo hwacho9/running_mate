@@ -4,9 +4,10 @@ import 'package:provider/provider.dart'; // Provider import
 import 'package:running_mate/firebase_options.dart';
 import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
-import 'package:running_mate/screens/profile/my_routes_page.dart';
+import 'package:running_mate/screens/running/MyTracksView.dart';
 import 'package:running_mate/screens/running/run_page.dart';
-import 'package:running_mate/services/run_service.dart';
+import 'package:running_mate/services/Trackservice.dart';
+import 'package:running_mate/viewmodels/MyTracksViewModel.dart';
 import 'package:running_mate/viewmodels/RunViewModel.dart';
 import 'viewmodels/auth_viewmodel.dart'; // AuthViewModel import
 
@@ -29,7 +30,12 @@ class MyApp extends StatelessWidget {
           create: (_) => AuthViewModel()..loadCurrentUser(),
         ),
         ChangeNotifierProvider(
-          create: (_) => RunViewModel(RunService()),
+          create: (_) => RunViewModel(Trackservice()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MyTracksViewModel(
+            Trackservice(),
+          ),
         ),
       ],
       child: MaterialApp(
@@ -46,7 +52,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const NavPage(),
-          '/my-routes': (context) => MyRoutesPage(),
+          '/my-routes': (context) => MyTracksView(),
           '/login': (context) => LoginView(),
           '/run': (context) => RunPage(),
         },

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/home/home_view.dart';
-import 'package:running_mate/screens/profile/my_routes_page.dart';
+import 'package:running_mate/screens/running/MyTracksView.dart';
 import 'package:running_mate/screens/SNS/shared_routes_page.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
 
@@ -17,7 +17,7 @@ class _NavPageState extends State<NavPage> {
 
   static List<Widget> _pages = <Widget>[
     HomeView(),
-    const MyRoutesPage(),
+    const MyTracksView(),
     const SharedRoutesPage(),
   ];
 
