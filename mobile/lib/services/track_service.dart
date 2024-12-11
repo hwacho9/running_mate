@@ -8,7 +8,7 @@ class Trackservice {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> saveTrack({
+  Future<String> saveTrack({
     required String name,
     required String creatorId,
     required String description,
@@ -16,12 +16,13 @@ class Trackservice {
     required double distance,
     required List<LatLng> coordinates,
   }) async {
-    // coordinates를 Firestore에 맞게 변환
+    // Convert coordinates to Firestore format
     final coordList = coordinates
         .map((p) => {'lat': p.latitude, 'lng': p.longitude})
         .toList();
 
-    await _firestore.collection('Tracks').add({
+    // Save the track and get the document reference
+    final docRef = await _firestore.collection('Tracks').add({
       'name': name,
       'creator_id': creatorId,
       'description': description,
@@ -30,6 +31,8 @@ class Trackservice {
       'created_at': FieldValue.serverTimestamp(),
       'coordinates': coordList,
     });
+
+    return docRef.id; // Return the document ID
   }
 
   Future<List<RouteModel>> fetchTracks() async {
