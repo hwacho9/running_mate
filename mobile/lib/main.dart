@@ -6,9 +6,12 @@ import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/running/mytrack_view.dart';
 import 'package:running_mate/screens/running/run_page.dart';
+import 'package:running_mate/screens/running/running_result_view.dart';
 import 'package:running_mate/services/track_service.dart';
+import 'package:running_mate/services/user_record_service.dart';
 import 'package:running_mate/viewmodels/MyTracksViewModel.dart';
 import 'package:running_mate/viewmodels/RunViewModel.dart';
+import 'package:running_mate/viewmodels/running_result_view_model.dart';
 import 'package:running_mate/viewmodels/running_view_model.dart';
 import 'viewmodels/auth_viewmodel.dart'; // AuthViewModel import
 
@@ -40,6 +43,16 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => RunningViewModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              RunningResultViewModel(UserRecordService(), Trackservice()),
+          child: RunningResultView(
+            startTime: DateTime.now(),
+            endTime: DateTime.now(),
+            coordinates: [],
+            totalDistance: 0.0,
+          ),
         ),
       ],
       child: MaterialApp(

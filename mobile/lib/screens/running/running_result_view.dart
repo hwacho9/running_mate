@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:running_mate/viewmodels/running_result_view_model.dart';
 import 'package:running_mate/screens/running/widgets/result_minimap.dart';
-import 'package:running_mate/services/track_service.dart';
-import 'package:running_mate/services/user_record_service.dart';
 
 class RunningResultView extends StatelessWidget {
   final DateTime startTime;
@@ -18,67 +18,9 @@ class RunningResultView extends StatelessWidget {
     required this.totalDistance,
   });
 
-  Future<void> _saveUserRecord(BuildContext context) async {
-    try {
-      final totalTime = endTime.difference(startTime).inSeconds;
-
-      await UserRecordService().saveUserRecord(
-        userId: 'USER_ID', // 실제 사용자 ID
-        startTime: startTime,
-        endTime: endTime,
-        totalTime: totalTime,
-        distance: totalDistance,
-        coordinates: coordinates,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User record saved successfully!')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to save user record.')),
-      );
-    }
-  }
-
-  Future<void> _saveTrackWithUserRecord(BuildContext context) async {
-    try {
-      final totalTime = endTime.difference(startTime).inSeconds;
-
-      final trackId = await Trackservice().saveTrack(
-        name: 'My Track',
-        creatorId: 'USER_ID', // 실제 사용자 ID
-        description: 'A beautiful running track',
-        region: 'Seoul', // 지역 정보
-        distance: totalDistance,
-        coordinates: coordinates
-            .map((coord) => LatLng(coord['lat'], coord['lng']))
-            .toList(),
-      );
-
-      await UserRecordService().saveUserRecord(
-        userId: 'USER_ID', // 실제 사용자 ID
-        trackId: trackId,
-        startTime: startTime,
-        endTime: endTime,
-        totalTime: totalTime,
-        distance: totalDistance,
-        coordinates: coordinates,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Track and user record saved successfully!')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to save track and user record.')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<RunningResultViewModel>();
     final duration = endTime.difference(startTime);
 
     return Scaffold(
@@ -108,12 +50,71 @@ class RunningResultView extends StatelessWidget {
             ResultMinimap(routePoints: coordinates),
             const Spacer(),
             ElevatedButton(
-              onPressed: () => _saveUserRecord(context),
+              onPressed: () async {
+                final authViewModel = context.read<AuthViewModel>();
+                final userId = authViewModel.user?.uid ?? '';
+
+                if (userId.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('User ID is missing')),
+                  );
+                  return;
+                }
+
+                try {
+                  await viewModel.saveUserRecord(
+                    userId: userId,
+                    startTime: startTime,
+                    endTime: endTime,
+                    distance: totalDistance,
+                    coordinates: coordinates,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('User record saved')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Failed to save record')),
+                  );
+                }
+              },
               child: const Text('Save User Record'),
             ),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () => _saveTrackWithUserRecord(context),
+              onPressed: () async {
+                final authViewModel = context.read<AuthViewModel>();
+                final userId = authViewModel.user?.uid ?? '';
+
+                if (userId.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('User ID is missing')),
+                  );
+                  return;
+                }
+
+                try {
+                  await viewModel.saveTrackWithUserRecord(
+                    userId: userId,
+                    startTime: startTime,
+                    endTime: endTime,
+                    distance: totalDistance,
+                    coordinates: coordinates,
+                    trackName: 'My Track',
+                    description: 'A beautiful running track',
+                    region: 'Seoul', // 지역 정보
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Track and user record saved')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Failed to save track and record')),
+                  );
+                }
+              },
               child: const Text('Save Track and User Record'),
             ),
           ],
