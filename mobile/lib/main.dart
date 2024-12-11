@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
           '/': (context) => const NavPage(),
           '/my-routes': (context) => MyRoutesPage(),
           '/login': (context) => LoginView(),
-          '/run': (context) => const RunPage(),
+          '/run': (context) => RunPage(),
         },
       ),
     );

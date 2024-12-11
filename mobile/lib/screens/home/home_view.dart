@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
+import 'package:running_mate/screens/home/widgets/MiniMap.dart';
 import 'package:running_mate/screens/profile/profile_view.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 
@@ -9,24 +10,20 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final authViewModel = context.watch<AuthViewModel>();
 
-    print(authViewModel.user?.nickname);
-
     if (authViewModel.user == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("홈 화면"),
-        automaticallyImplyLeading: false, // 뒤로가기 버튼 제거
+        title: const Text("ホーム画面"),
+        automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: const Icon(Icons.person), // 프로필 모양 아이콘
+          icon: const Icon(Icons.person),
           onPressed: () {
-            // 프로필 화면으로 이동
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (_) => const ProfileView()), // ProfileView로 변경
+              MaterialPageRoute(builder: (_) => const ProfileView()),
             );
           },
         ),
@@ -35,8 +32,6 @@ class HomeView extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await authViewModel.logout();
-
-              // 로그아웃 후 로그인 화면으로 이동
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (_) => LoginView()),
@@ -51,7 +46,7 @@ class HomeView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "안녕하세요, ${authViewModel.user?.nickname ?? "사용자"}さん!",
+              "こんにちは, ${authViewModel.user?.nickname ?? ""}さん!",
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -68,40 +63,16 @@ class HomeView extends StatelessWidget {
               "Email: ${authViewModel.user?.email ?? "알 수 없음"}",
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
-            const SizedBox(height: 32),
             const Divider(),
+            const SizedBox(height: 16),
+            const Text("今日も走りましょう!",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            const MiniMap(), // MiniMap 컴포넌트 사용
+            const SizedBox(height: 32),
             const Text(
               "앱 기능",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.person),
-              label: const Text("프로필 보기"),
-              onPressed: () {
-                // 프로필 보기 화면으로 이동 (구현 필요)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("프로필 보기 기능 준비 중")),
-                );
-              },
-            ),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.settings),
-              label: const Text("설정"),
-              onPressed: () {
-                // 설정 화면으로 이동 (구현 필요)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("설정 기능 준비 중")),
-                );
-              },
-            ),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.settings),
-              label: const Text("running"),
-              onPressed: () {
-                // 설정 화면으로 이동 (구현 필요)
-                Navigator.pushNamed(context, '/run');
-              },
             ),
           ],
         ),
