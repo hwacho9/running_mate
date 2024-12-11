@@ -6,6 +6,8 @@ import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/profile/my_routes_page.dart';
 import 'package:running_mate/screens/running/run_page.dart';
+import 'package:running_mate/services/run_service.dart';
+import 'package:running_mate/viewmodels/RunViewModel.dart';
 import 'viewmodels/auth_viewmodel.dart'; // AuthViewModel import
 
 Future<void> main() async {
@@ -25,6 +27,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => AuthViewModel()..loadCurrentUser(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RunViewModel(RunService()),
         ),
       ],
       child: MaterialApp(
