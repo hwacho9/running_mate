@@ -1,10 +1,13 @@
-// views/run_page.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/screens/running/saveRouteDetailView.dart';
 import 'package:running_mate/viewmodels/RunViewModel.dart';
 import 'package:running_mate/viewmodels/auth_viewmodel.dart';
+import 'package:geolocator/geolocator.dart';
 
 class RunPage extends StatefulWidget {
   const RunPage({super.key});
@@ -15,14 +18,14 @@ class RunPage extends StatefulWidget {
 
 class _RunPageState extends State<RunPage> {
   late final MapController _mapController;
+  StreamSubscription<Position>? _positionSubscription;
+  double _heading = 0.0;
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
 
-    // initState에서는 Provider에 바로 접근하지 않고,
-    // 첫 프레임 렌더링 이후에 Provider에 접근합니다.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authViewModel = context.read<AuthViewModel>();
       final creatorId = authViewModel.user?.uid ?? "";
@@ -33,7 +36,28 @@ class _RunPageState extends State<RunPage> {
           _mapController.move(viewModel.currentPosition!, 13.0);
         }
       });
+
+      _startHeadingUpdates();
     });
+  }
+
+  void _startHeadingUpdates() {
+    // 위치 및 방향 스트림 수신
+    _positionSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    ).listen((Position position) {
+      if (mounted) {
+        setState(() {
+          _heading = position.heading; // 방향 값 업데이트
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _positionSubscription?.cancel(); // 스트림 구독 취소
+    super.dispose();
   }
 
   @override
@@ -45,14 +69,27 @@ class _RunPageState extends State<RunPage> {
         title: const Text('Draw Your Route'),
         actions: [
           IconButton(
-            onPressed: () async {
-              bool saved = await viewModel.saveRoute();
-              if (saved && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Route saved successfully!')),
-                );
-                Navigator.pushNamed(context, '/my-routes');
-              }
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Saveroutedetailview(
+                    onSave: (name, description) async {
+                      bool saved = await viewModel.saveRouteWithDetails(
+                        name: name,
+                        description: description,
+                      );
+                      if (saved && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Route saved successfully!')),
+                        );
+                        Navigator.pushNamed(context, '/my-routes');
+                      }
+                    },
+                  ),
+                ),
+              );
             },
             icon: const Icon(Icons.save),
             tooltip: 'Save Route',
@@ -63,7 +100,7 @@ class _RunPageState extends State<RunPage> {
         mapController: _mapController,
         options: MapOptions(
           initialCenter: viewModel.currentPosition ?? LatLng(34.70, 135.2),
-          initialZoom: 15.0,
+          initialZoom: 18.0,
           onTap: (tapPosition, latLng) {
             viewModel.addRoutePoint(latLng);
           },
@@ -89,10 +126,13 @@ class _RunPageState extends State<RunPage> {
                   point: viewModel.currentPosition!,
                   width: 50,
                   height: 50,
-                  child: const Icon(
-                    Icons.my_location,
-                    color: Colors.blue,
-                    size: 30,
+                  child: Transform.rotate(
+                    angle: _heading * (3.14159265359 / 180),
+                    child: const Icon(
+                      Icons.navigation,
+                      color: Colors.blue,
+                      size: 30,
+                    ),
                   ),
                 ),
               ],

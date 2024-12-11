@@ -127,6 +127,17 @@ class RunViewModel extends ChangeNotifier {
     return true;
   }
 
+  Future<bool> saveRouteWithDetails(
+      {required String name, required String description}) async {
+    if (_routePoints.isEmpty) return false;
+
+    this.name = name; // 사용자 입력 값 저장
+    this.description = description;
+
+    await saveRoute();
+    return true;
+  }
+
   void clearRoute() {
     _routePoints.clear();
     _distance = 0.0;
