@@ -184,6 +184,8 @@ class RunningViewModel extends ChangeNotifier {
     _pauseStartTime = null;
     _totalPauseTime = Duration.zero;
 
+    _coordinateTimer = null;
+    _positionSubscription = null;
     // 런닝 상태 종료
     statusProvider.stopRunning();
 
