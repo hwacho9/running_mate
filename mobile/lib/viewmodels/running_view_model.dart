@@ -15,6 +15,10 @@ class RunningViewModel extends ChangeNotifier {
   StreamSubscription<Position>? _positionSubscription; // 스트림 구독 관리
   Timer? _coordinateTimer; // 타이머 관리
   bool _isTracking = false; // 추적 상태
+  bool _isPaused = false; // 일시정지 상태
+
+  DateTime? _pauseStartTime; // 일시정지 시작 시간
+  Duration _totalPauseTime = Duration.zero; // 총 일시정지 시간
 
   List<Map<String, dynamic>> get coordinates => _coordinates;
   LatLng? get currentPosition => _currentPosition;
@@ -22,6 +26,8 @@ class RunningViewModel extends ChangeNotifier {
   double get heading => _heading;
   DateTime? get startTime => _startTime;
   bool get isTracking => _isTracking;
+  bool get isPaused => _isPaused;
+  Duration get totalPauseTime => _totalPauseTime;
 
   Future<void> checkPermissions() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -85,10 +91,8 @@ class RunningViewModel extends ChangeNotifier {
       });
 
       // 3초마다 좌표 저장
-      // Timer 안에서 추가 조건을 사용하여 데이터 중복 입력 방지
       _coordinateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
         if (_currentPosition != null) {
-          // 마지막으로 저장된 시간 확인
           if (_coordinates.isEmpty ||
               DateTime.now()
                       .difference(DateTime.parse(_coordinates.last['time']))
@@ -109,12 +113,54 @@ class RunningViewModel extends ChangeNotifier {
     }
   }
 
+  void pauseTracking() {
+    if (_isTracking && !_isPaused) {
+      _isPaused = true;
+      _pauseStartTime = DateTime.now();
+      _positionSubscription?.pause();
+      _coordinateTimer?.cancel();
+      notifyListeners();
+    }
+  }
+
+  void resumeTracking() {
+    if (_isPaused) {
+      if (_pauseStartTime != null) {
+        _totalPauseTime += DateTime.now().difference(_pauseStartTime!);
+      }
+      _isPaused = false;
+      _pauseStartTime = null;
+      _positionSubscription?.resume();
+      _coordinateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+        if (_currentPosition != null) {
+          if (_coordinates.isEmpty ||
+              DateTime.now()
+                      .difference(DateTime.parse(_coordinates.last['time']))
+                      .inSeconds >=
+                  3) {
+            _coordinates.add({
+              'time': DateTime.now().toIso8601String(),
+              'lat': _currentPosition!.latitude,
+              'lng': _currentPosition!.longitude,
+            });
+            notifyListeners();
+          }
+        }
+      });
+      notifyListeners();
+    }
+  }
+
   void stopTracking() {
-    _positionSubscription?.cancel(); // 스트림 구독 취소
-    _coordinateTimer?.cancel(); // 타이머 취소
+    if (_pauseStartTime != null) {
+      _totalPauseTime += DateTime.now().difference(_pauseStartTime!);
+    }
+    _positionSubscription?.cancel();
+    _coordinateTimer?.cancel();
     _positionSubscription = null;
     _coordinateTimer = null;
     _isTracking = false;
+    _isPaused = false;
     notifyListeners();
   }
 

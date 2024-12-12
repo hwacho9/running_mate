@@ -52,6 +52,7 @@ class MyApp extends StatelessWidget {
             endTime: DateTime.now(),
             coordinates: const [],
             totalDistance: 0.0,
+            pauseTime: const Duration(seconds: 0),
           ),
         ),
       ],

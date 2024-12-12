@@ -10,14 +10,16 @@ class UserRecordService {
     required DateTime endTime,
     required int totalTime,
     required double distance,
+    required Duration totalPauseTime, // 일시정지 시간 추가
     required List<Map<String, dynamic>> coordinates,
   }) async {
     await _firestore.collection('UserRecords').add({
       'user_id': userId,
-      'track_id': trackId, // 트랙 ID가 없으면 null로 저장
+      'track_id': trackId,
       'start_time': startTime,
       'end_time': endTime,
       'total_time': totalTime,
+      'pause_time': totalPauseTime.inSeconds, // 초 단위로 저장
       'distance': distance,
       'coordinates': coordinates,
     });

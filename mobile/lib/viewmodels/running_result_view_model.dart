@@ -18,6 +18,7 @@ class RunningResultViewModel extends ChangeNotifier {
     required DateTime endTime,
     required double distance,
     required List<Map<String, dynamic>> coordinates,
+    required Duration pauseTime, // 추가된 pauseTime 파라미터
   }) async {
     try {
       _isSaving = true;
@@ -32,6 +33,7 @@ class RunningResultViewModel extends ChangeNotifier {
         totalTime: totalTime,
         distance: distance,
         coordinates: coordinates,
+        totalPauseTime: pauseTime, // 휴식 시간 전달
       );
     } catch (e) {
       print('Failed to save user record: $e');
@@ -51,6 +53,7 @@ class RunningResultViewModel extends ChangeNotifier {
     required String trackName,
     required String description,
     required String region,
+    required Duration pauseTime, // 추가된 pauseTime 파라미터
   }) async {
     try {
       _isSaving = true;
@@ -77,6 +80,7 @@ class RunningResultViewModel extends ChangeNotifier {
         totalTime: totalTime,
         distance: distance,
         coordinates: coordinates,
+        totalPauseTime: pauseTime, // 휴식 시간 전달
       );
     } catch (e) {
       print('Failed to save track and user record: $e');

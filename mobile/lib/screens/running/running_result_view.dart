@@ -11,6 +11,7 @@ import 'package:running_mate/screens/running/widgets/result_minimap.dart';
 class RunningResultView extends StatelessWidget {
   final DateTime startTime;
   final DateTime endTime;
+  final Duration pauseTime; // 추가된 pauseTime
   final List<Map<String, dynamic>> coordinates;
   final double totalDistance;
 
@@ -18,6 +19,7 @@ class RunningResultView extends StatelessWidget {
     super.key,
     required this.startTime,
     required this.endTime,
+    required this.pauseTime, // 추가된 pauseTime
     required this.coordinates,
     required this.totalDistance,
   });
@@ -25,7 +27,7 @@ class RunningResultView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<RunningResultViewModel>();
-    final duration = endTime.difference(startTime);
+    final duration = endTime.difference(startTime) - pauseTime;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,7 +45,10 @@ class RunningResultView extends StatelessWidget {
             const SizedBox(height: 16),
             Text('Start Time: $startTime'),
             Text('End Time: $endTime'),
-            Text('Duration: ${duration.inMinutes} minutes'),
+            Text(
+                'Total Duration: ${endTime.difference(startTime).inMinutes} minutes'),
+            Text('Paused Time: ${pauseTime.inMinutes} minutes'),
+            Text('Active Duration: ${duration.inMinutes} minutes'),
             Text('Total Distance: ${totalDistance.toStringAsFixed(2)} meters'),
             const SizedBox(height: 16),
             const Text(
@@ -70,6 +75,7 @@ class RunningResultView extends StatelessWidget {
                     userId: userId,
                     startTime: startTime,
                     endTime: endTime,
+                    pauseTime: pauseTime, // pauseTime 추가
                     distance: totalDistance,
                     coordinates: coordinates,
                   );
@@ -129,6 +135,7 @@ class RunningResultView extends StatelessWidget {
                             userId: userId,
                             startTime: startTime,
                             endTime: endTime,
+                            pauseTime: pauseTime, // pauseTime 추가
                             distance: totalDistance,
                             coordinates: coordinates,
                             trackName: name,
