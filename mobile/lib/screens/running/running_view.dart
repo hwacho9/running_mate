@@ -56,6 +56,7 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
     final viewModel = context.watch<RunningViewModel>();
     final isPaused = context.watch<RunningStatusProvider>().isPaused;
 
+    // print(viewModel.totalPauseTime);
     if (viewModel.currentPosition == null) {
       return const Scaffold(
         body: Center(

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/running/save_track_detail_view.dart';
+import 'package:running_mate/screens/running/widgets/result_minimap.dart';
 import 'package:running_mate/utils/check_language_util.dart';
 import 'package:running_mate/utils/get_region_util.dart';
 import 'package:running_mate/utils/regionConverter.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:running_mate/viewmodels/running_result_view_model.dart';
-import 'package:running_mate/screens/running/widgets/result_minimap.dart';
 import 'package:running_mate/viewmodels/running_view_model.dart';
+import 'package:running_mate/screens/running/widgets/running_statistics_section.dart';
+import 'package:running_mate/screens/running/widgets/running_buttons_section.dart';
 
 class RunningResultView extends StatelessWidget {
   final DateTime startTime;
@@ -30,6 +32,9 @@ class RunningResultView extends StatelessWidget {
     final viewModel = context.watch<RunningResultViewModel>();
     final runningViewModel = context.watch<RunningViewModel>();
     final duration = endTime.difference(startTime) - pauseTime;
+    final averageSpeed = totalDistance > 0
+        ? (totalDistance / (duration.inSeconds / 3600))
+        : 0.0; // 平均速度 (km/h)
 
     return Scaffold(
       appBar: AppBar(
@@ -38,10 +43,7 @@ class RunningResultView extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Text(
-            '再開',
-            style: TextStyle(fontSize: 16, color: Colors.black),
-          ),
+          icon: const Icon(Icons.arrow_back),
         ),
       ),
       body: Padding(
@@ -49,34 +51,29 @@ class RunningResultView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Summary',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const Divider(),
+            // 統計情報セクション
+            RunningStatisticsSection(
+              totalDistance: totalDistance,
+              duration: duration,
+              averageSpeed: averageSpeed,
+              pauseTime: pauseTime,
+              startTime: startTime,
+              endTime: endTime,
             ),
             const SizedBox(height: 16),
-            Text('Start Time: $startTime'),
-            Text('End Time: $endTime'),
-            Text(
-                'Total Duration: ${endTime.difference(startTime).inMinutes} minutes'),
-            Text('Paused Time: ${pauseTime.inMinutes} minutes'),
-            Text('Active Duration: ${duration.inMinutes} minutes'),
-            Text('Total Distance: ${totalDistance.toStringAsFixed(2)} meters'),
-            const SizedBox(height: 16),
-            const Text(
-              'Route',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
+            // マップビュー
             ResultMinimap(routePoints: coordinates),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () async {
+            const SizedBox(height: 25),
+            // ボタンセクション
+            RunningButtonsSection(
+              onSaveRecord: () async {
                 final authViewModel = context.read<AuthViewModel>();
                 final userId = authViewModel.user?.uid ?? '';
 
                 if (userId.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('User ID is missing')),
+                    const SnackBar(content: Text('ユーザーIDがありません')),
                   );
                   return;
                 }
@@ -90,22 +87,18 @@ class RunningResultView extends StatelessWidget {
                     distance: totalDistance,
                     coordinates: coordinates,
                   );
-                  runningViewModel.stopTracking(context); // 추적 종료
+                  runningViewModel.stopTracking(context); // 追跡終了
                   Navigator.pushReplacementNamed(context, '/');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('User record saved')),
+                    const SnackBar(content: Text('ランニング記録が保存されました')),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Failed to save record')),
+                    const SnackBar(content: Text('記録の保存に失敗しました')),
                   );
                 }
               },
-              child: const Text('Save User Record'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
+              onSaveTrack: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -116,7 +109,7 @@ class RunningResultView extends StatelessWidget {
 
                         if (userId.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('User ID is missing')),
+                            const SnackBar(content: Text('ユーザーIDがありません')),
                           );
                           return;
                         }
@@ -124,8 +117,7 @@ class RunningResultView extends StatelessWidget {
                         try {
                           if (coordinates.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('No coordinates available')),
+                              const SnackBar(content: Text('利用可能な座標がありません')),
                             );
                             return;
                           }
@@ -153,19 +145,16 @@ class RunningResultView extends StatelessWidget {
                             description: description,
                             region: translatedRegion,
                           );
-                          runningViewModel.stopTracking(context); // 추적 종료
+                          runningViewModel.stopTracking(context); // 追跡終了
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                  'Track and user record saved successfully'),
+                              content: Text('トラックとユーザー記録が正常に保存されました'),
                             ),
                           );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text('Failed to save track and record')),
+                            const SnackBar(content: Text('トラックと記録の保存に失敗しました')),
                           );
                         }
                       },
@@ -173,7 +162,6 @@ class RunningResultView extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('Save Track and User Record'),
             ),
           ],
         ),
