@@ -7,11 +7,12 @@ import 'package:running_mate/utils/regionConverter.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:running_mate/viewmodels/running_result_view_model.dart';
 import 'package:running_mate/screens/running/widgets/result_minimap.dart';
+import 'package:running_mate/viewmodels/running_view_model.dart';
 
 class RunningResultView extends StatelessWidget {
   final DateTime startTime;
   final DateTime endTime;
-  final Duration pauseTime; // 추가된 pauseTime
+  final Duration pauseTime;
   final List<Map<String, dynamic>> coordinates;
   final double totalDistance;
 
@@ -19,7 +20,7 @@ class RunningResultView extends StatelessWidget {
     super.key,
     required this.startTime,
     required this.endTime,
-    required this.pauseTime, // 추가된 pauseTime
+    required this.pauseTime,
     required this.coordinates,
     required this.totalDistance,
   });
@@ -27,11 +28,21 @@ class RunningResultView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<RunningResultViewModel>();
+    final runningViewModel = context.watch<RunningViewModel>();
     final duration = endTime.difference(startTime) - pauseTime;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Run Summary'),
+        title: const Text('ランニング記録'),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Text(
+            '再開',
+            style: TextStyle(fontSize: 16, color: Colors.black),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -75,10 +86,12 @@ class RunningResultView extends StatelessWidget {
                     userId: userId,
                     startTime: startTime,
                     endTime: endTime,
-                    pauseTime: pauseTime, // pauseTime 추가
+                    pauseTime: pauseTime,
                     distance: totalDistance,
                     coordinates: coordinates,
                   );
+                  runningViewModel.stopTracking(); // 추적 종료
+                  Navigator.pushReplacementNamed(context, '/');
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('User record saved')),
                   );
@@ -109,7 +122,6 @@ class RunningResultView extends StatelessWidget {
                         }
 
                         try {
-                          // 리전 정보 가져오기
                           if (coordinates.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -130,26 +142,25 @@ class RunningResultView extends StatelessWidget {
                                   ? convertKoreanToJapanese(region)
                                   : region;
 
-                          // 저장 로직 실행
                           await viewModel.saveTrackWithUserRecord(
                             userId: userId,
                             startTime: startTime,
                             endTime: endTime,
-                            pauseTime: pauseTime, // pauseTime 추가
+                            pauseTime: pauseTime,
                             distance: totalDistance,
                             coordinates: coordinates,
                             trackName: name,
                             description: description,
                             region: translatedRegion,
                           );
-
+                          runningViewModel.stopTracking(); // 추적 종료
+                          Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
                                   'Track and user record saved successfully'),
                             ),
                           );
-                          Navigator.pop(context); // 저장 완료 후 이전 화면으로 이동
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
