@@ -10,7 +10,7 @@ import 'package:running_mate/viewmodels/run_view_model.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:running_mate/utils/direction_util.dart';
-import 'package:running_mate/widgets/Buttons/CircleFloatingActionButton.dart'; // 새 유틸리티 파일 import
+import 'package:running_mate/widgets/Buttons/CircleFloatingActionButton.dart';
 
 class RunView extends StatefulWidget {
   const RunView({super.key});
@@ -23,6 +23,17 @@ class _RunViewState extends State<RunView> {
   late final MapController _mapController;
   StreamSubscription<Position>? _positionSubscription;
   double _heading = 0.0;
+  bool _isDrawingMode = false; // 그리기 모드 여부
+  List<LatLng> _markers = []; // 마커 리스트
+
+  List<LatLng> _getPolylinePoints() {
+    List<LatLng> points = [];
+    for (int i = 1; i < _markers.length; i++) {
+      points.add(_markers[i - 1]);
+      points.add(_markers[i]);
+    }
+    return points;
+  }
 
   @override
   void initState() {
@@ -68,7 +79,7 @@ class _RunViewState extends State<RunView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Draw Your Route'),
+        title: const Text('ランニング'),
         actions: [
           IconButton(
             onPressed: () {
@@ -105,9 +116,15 @@ class _RunViewState extends State<RunView> {
             options: MapOptions(
               initialCenter: viewModel.currentPosition ?? LatLng(34.70, 135.2),
               initialZoom: 18.0,
-              onTap: (tapPosition, latLng) {
-                viewModel.addRoutePoint(latLng);
-              },
+              onTap: _isDrawingMode
+                  ? (tapPosition, latLng) {
+                      setState(() {
+                        _markers.add(latLng); // 마커 추가
+                        viewModel.addRoutePoint(latLng); // 경로에 추가
+                        print(viewModel.routePoints);
+                      });
+                    }
+                  : null, // 그리기 모드에서만 동작
             ),
             children: [
               TileLayer(
@@ -117,15 +134,15 @@ class _RunViewState extends State<RunView> {
               PolylineLayer(
                 polylines: [
                   Polyline(
-                    points: viewModel.routePoints,
+                    points: _getPolylinePoints(), // 경로 계산 함수 호출
                     strokeWidth: 4.0,
                     color: Colors.red,
                   ),
                 ],
               ),
-              if (viewModel.currentPosition != null)
-                MarkerLayer(
-                  markers: [
+              MarkerLayer(
+                markers: [
+                  if (viewModel.currentPosition != null)
                     Marker(
                       point: viewModel.currentPosition!,
                       width: 50,
@@ -139,33 +156,78 @@ class _RunViewState extends State<RunView> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ..._markers.map((latLng) => Marker(
+                        point: latLng,
+                        width: 30,
+                        height: 30,
+                        child: const Icon(
+                          Icons.place,
+                          color: Colors.red,
+                          size: 30,
+                        ),
+                      )),
+                ],
+              ),
             ],
           ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 45.0), // 버튼 위로 올리기
+              padding: const EdgeInsets.only(bottom: 48.0), // 버튼 위로 올리기
               child: CircleFloatingActionButton(
+                backgroundColor: Colors.orange,
+                size: 72.0,
                 onPressed: () {
-                  // 스타트 버튼 동작
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const RunningView(), // 새 런닝 페이지
+                      builder: (context) => const RunningView(),
                     ),
                   );
                 },
                 icon: Icons.play_arrow,
+                tooltip: 'Start',
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16.0, bottom: 48.0),
+              child: CircleFloatingActionButton(
+                onPressed: () {
+                  setState(() {
+                    if (_isDrawingMode) {
+                      // 드로잉 모드 종료
+                      viewModel.clearRoute(); // 루트 초기화
+                      _markers.clear(); // 마커 초기화
+                    } else {
+                      // 드로잉 모드 시작
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('トラックポイントを押してください'),
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: Colors.blue,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 130),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            side: const BorderSide(
+                                color: Colors.blueGrey, width: 2),
+                          ),
+                        ),
+                      );
+                    }
+                    _isDrawingMode = !_isDrawingMode;
+                  });
+                },
+                icon: _isDrawingMode ? Icons.close : Icons.edit,
+                tooltip:
+                    _isDrawingMode ? 'Exit Drawing Mode' : 'Enter Drawing Mode',
               ),
             ),
           ),
         ],
-      ),
-      floatingActionButton: CircleFloatingActionButton(
-        onPressed: viewModel.clearRoute,
-        icon: Icons.clear,
       ),
     );
   }

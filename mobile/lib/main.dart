@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
           child: RunningResultView(
             startTime: DateTime.now(),
             endTime: DateTime.now(),
-            coordinates: [],
+            coordinates: const [],
             totalDistance: 0.0,
           ),
         ),
@@ -69,9 +69,9 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const NavPage(),
-          '/my-routes': (context) => MyTracksView(),
+          '/my-routes': (context) => const MyTracksView(),
           '/login': (context) => LoginView(),
-          '/run': (context) => RunView(),
+          '/run': (context) => const RunView(),
         },
       ),
     );

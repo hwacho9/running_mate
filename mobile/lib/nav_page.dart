@@ -16,9 +16,9 @@ class NavPage extends StatefulWidget {
 class _NavPageState extends State<NavPage> {
   int _selectedIndex = 0;
 
-  static List<Widget> _pages = <Widget>[
+  static final List<Widget> _pages = <Widget>[
     HomeView(),
-    MyTracksView(),
+    const MyTracksView(),
     const RunView(),
     const SharedRoutesPage(),
   ];
