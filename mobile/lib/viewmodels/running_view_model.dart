@@ -184,8 +184,10 @@ class RunningViewModel extends ChangeNotifier {
     _pauseStartTime = null;
     _totalPauseTime = Duration.zero;
 
+    // 런닝 상태 종료 및 상태 초기화
     _coordinateTimer = null;
     _positionSubscription = null;
+
     // 런닝 상태 종료
     statusProvider.stopRunning();
 
