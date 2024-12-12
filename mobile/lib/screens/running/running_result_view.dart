@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:running_mate/screens/running/save_routedetail_view.dart';
+import 'package:running_mate/screens/running/save_track_detail_view.dart';
 import 'package:running_mate/utils/check_language_util.dart';
 import 'package:running_mate/utils/get_region_util.dart';
 import 'package:running_mate/utils/regionConverter.dart';

@@ -37,7 +37,6 @@ class _RunningViewState extends State<RunningView> {
       );
     }
 
-    print(viewModel.coordinates);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Running Tracker'),

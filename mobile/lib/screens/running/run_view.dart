@@ -5,7 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/running/running_view.dart';
-import 'package:running_mate/screens/running/save_routedetail_view.dart';
+import 'package:running_mate/screens/running/save_track_detail_view.dart';
 import 'package:running_mate/viewmodels/run_view_model.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:geolocator/geolocator.dart';
