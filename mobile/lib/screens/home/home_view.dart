@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/provider/running_status_provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/home/widgets/MiniMap.dart';
 import 'package:running_mate/screens/profile/profile_view.dart';
+import 'package:running_mate/viewmodels/running_view_model.dart';
 import '../../viewmodels/auth_view_model.dart';
 
 class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authViewModel = context.watch<AuthViewModel>();
+    final viewmodel = context.watch<RunningViewModel>();
+    final status = context.watch<RunningStatusProvider>();
+
+    print(viewmodel.coordinates);
+    print(viewmodel.totalPauseTime);
+    print(status.isRunning);
+    print(status.isPaused);
 
     if (authViewModel.user == null) {
       return const Center(child: CircularProgressIndicator());

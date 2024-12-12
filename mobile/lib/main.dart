@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Provider import
 import 'package:running_mate/firebase_options.dart';
 import 'package:running_mate/nav_page.dart';
+import 'package:running_mate/provider/running_status_provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/tracks/my_tracks_view.dart';
 import 'package:running_mate/screens/running/run_view.dart';
@@ -32,6 +33,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => AuthViewModel()..loadCurrentUser(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RunningStatusProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => RunViewModel(Trackservice()),

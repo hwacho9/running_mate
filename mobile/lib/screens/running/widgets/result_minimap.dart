@@ -23,7 +23,7 @@ class ResultMinimap extends StatelessWidget {
       child: FlutterMap(
         options: MapOptions(
           initialCenter: points.isNotEmpty ? points.first : LatLng(34.7, 135.2),
-          initialZoom: 13.0,
+          initialZoom: 15.0,
         ),
         children: [
           TileLayer(

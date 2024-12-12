@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/provider/running_status_provider.dart';
 import 'package:running_mate/screens/home/home_view.dart';
 import 'package:running_mate/screens/running/run_view.dart';
+import 'package:running_mate/screens/running/running_view.dart';
 import 'package:running_mate/screens/tracks/my_tracks_view.dart';
 import 'package:running_mate/screens/SNS/shared_routes_page.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
@@ -24,9 +26,20 @@ class _NavPageState extends State<NavPage> {
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    final isRunning =
+        Provider.of<RunningStatusProvider>(context, listen: false).isRunning;
+
+    if (index == 2 && isRunning) {
+      // 런닝 상태일 때 RunningView로 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const RunningView()),
+      );
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   @override
@@ -39,9 +52,12 @@ class _NavPageState extends State<NavPage> {
     }
 
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Fixed type으로 설정
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -52,8 +68,8 @@ class _NavPageState extends State<NavPage> {
             label: 'Tracks',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Map',
+            icon: Icon(Icons.directions_run),
+            label: 'Run',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),

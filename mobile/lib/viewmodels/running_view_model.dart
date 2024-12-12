@@ -1,9 +1,10 @@
-// running_viewmodel.dart
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import 'package:running_mate/provider/running_status_provider.dart';
 
 class RunningViewModel extends ChangeNotifier {
   List<Map<String, dynamic>> _coordinates = []; // 시간, 위치 저장
@@ -14,8 +15,6 @@ class RunningViewModel extends ChangeNotifier {
   DateTime? _startTime;
   StreamSubscription<Position>? _positionSubscription; // 스트림 구독 관리
   Timer? _coordinateTimer; // 타이머 관리
-  bool _isTracking = false; // 추적 상태
-  bool _isPaused = false; // 일시정지 상태
 
   DateTime? _pauseStartTime; // 일시정지 시작 시간
   Duration _totalPauseTime = Duration.zero; // 총 일시정지 시간
@@ -25,8 +24,6 @@ class RunningViewModel extends ChangeNotifier {
   double get totalDistance => _totalDistance;
   double get heading => _heading;
   DateTime? get startTime => _startTime;
-  bool get isTracking => _isTracking;
-  bool get isPaused => _isPaused;
   Duration get totalPauseTime => _totalPauseTime;
 
   Future<void> checkPermissions() async {
@@ -48,7 +45,16 @@ class RunningViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> startTracking() async {
+  Future<void> startTracking(BuildContext context) async {
+    final statusProvider =
+        Provider.of<RunningStatusProvider>(context, listen: false);
+
+    // 이미 실행 중인 경우 중단
+    if (_positionSubscription != null || _coordinateTimer != null) {
+      print('Tracking already started');
+      return;
+    }
+
     try {
       await checkPermissions();
 
@@ -63,13 +69,14 @@ class RunningViewModel extends ChangeNotifier {
       notifyListeners();
 
       _startTime = DateTime.now(); // 시작 시간 기록
-      _isTracking = true;
-      notifyListeners();
+      statusProvider.startRunning(); // 상태 업데이트
 
+      // 위치 스트림 설정
       _positionSubscription = Geolocator.getPositionStream(
         locationSettings:
             const LocationSettings(accuracy: LocationAccuracy.high),
-      ).listen((Position position) {
+      ).listen((position) {
+        if (!statusProvider.isRunning) return; // isRunning이 false이면 업데이트 중단
         _currentPosition = LatLng(position.latitude, position.longitude);
         _heading = position.heading;
 
@@ -87,86 +94,104 @@ class RunningViewModel extends ChangeNotifier {
         notifyListeners();
       }, onError: (error) {
         print('Error in position stream: $error');
-        stopTracking();
       });
 
       // 3초마다 좌표 저장
       _coordinateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-        if (_currentPosition != null) {
-          if (_coordinates.isEmpty ||
-              DateTime.now()
-                      .difference(DateTime.parse(_coordinates.last['time']))
-                      .inSeconds >=
-                  3) {
-            _coordinates.add({
-              'time': DateTime.now().toIso8601String(),
-              'lat': _currentPosition!.latitude,
-              'lng': _currentPosition!.longitude,
-            });
-            notifyListeners();
-          }
+        if (!statusProvider.isRunning) return; // isRunning이 false이면 업데이트 중단
+        if (_currentPosition != null &&
+            (_coordinates.isEmpty ||
+                DateTime.now()
+                        .difference(DateTime.parse(_coordinates.last['time']))
+                        .inSeconds >=
+                    3)) {
+          _coordinates.add({
+            'time': DateTime.now().toIso8601String(),
+            'lat': _currentPosition!.latitude,
+            'lng': _currentPosition!.longitude,
+          });
+          notifyListeners();
         }
       });
     } catch (e) {
       print('Tracking error: $e');
-      stopTracking();
+      stopTracking(context);
     }
   }
 
-  void pauseTracking() {
-    if (_isTracking && !_isPaused) {
-      _isPaused = true;
-      _pauseStartTime = DateTime.now();
-      _positionSubscription?.pause();
-      _coordinateTimer?.cancel();
-      notifyListeners();
+  void pauseTracking(BuildContext context) {
+    final statusProvider =
+        Provider.of<RunningStatusProvider>(context, listen: false);
+
+    if (_pauseStartTime == null) {
+      _pauseStartTime = DateTime.now(); // 일시정지 시작 시간 기록
     }
+
+    _positionSubscription?.pause(); // 위치 업데이트 중지
+    _coordinateTimer?.cancel(); // 타이머 중지
+    statusProvider.pauseRunning(); // 상태 업데이트
+    notifyListeners();
   }
 
-  void resumeTracking() {
-    if (_isPaused) {
-      if (_pauseStartTime != null) {
-        _totalPauseTime += DateTime.now().difference(_pauseStartTime!);
-      }
-      _isPaused = false;
-      _pauseStartTime = null;
-      _positionSubscription?.resume();
-      _coordinateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-        if (_currentPosition != null) {
-          if (_coordinates.isEmpty ||
+  void resumeTracking(BuildContext context) {
+    final statusProvider =
+        Provider.of<RunningStatusProvider>(context, listen: false);
+
+    if (_pauseStartTime != null) {
+      _totalPauseTime +=
+          DateTime.now().difference(_pauseStartTime!); // 일시정지 시간 계산
+      _pauseStartTime = null; // 초기화
+    }
+
+    _positionSubscription?.resume(); // 위치 업데이트 재개
+    _coordinateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (!statusProvider.isRunning) return; // isRunning이 false이면 업데이트 중단
+      if (_currentPosition != null &&
+          (_coordinates.isEmpty ||
               DateTime.now()
                       .difference(DateTime.parse(_coordinates.last['time']))
                       .inSeconds >=
-                  3) {
-            _coordinates.add({
-              'time': DateTime.now().toIso8601String(),
-              'lat': _currentPosition!.latitude,
-              'lng': _currentPosition!.longitude,
-            });
-            notifyListeners();
-          }
-        }
-      });
-      notifyListeners();
-    }
+                  3)) {
+        _coordinates.add({
+          'time': DateTime.now().toIso8601String(),
+          'lat': _currentPosition!.latitude,
+          'lng': _currentPosition!.longitude,
+        });
+        notifyListeners();
+      }
+    });
+    statusProvider.resumeRunning(); // 상태 업데이트
+    notifyListeners();
   }
 
-  void stopTracking() {
-    if (_pauseStartTime != null) {
-      _totalPauseTime += DateTime.now().difference(_pauseStartTime!);
-    }
-    _positionSubscription?.cancel();
+  void stopTracking(BuildContext context) {
+    final statusProvider =
+        Provider.of<RunningStatusProvider>(context, listen: false);
+
+    // 타이머와 스트림 구독 해제
     _coordinateTimer?.cancel();
-    _positionSubscription = null;
-    _coordinateTimer = null;
-    _isTracking = false;
-    _isPaused = false;
+    _positionSubscription?.cancel();
+
+    // 데이터 초기화
+    _coordinates.clear();
+    _currentPosition = null;
+    _previousPosition = null;
+    _totalDistance = 0.0;
+    _heading = 0.0;
+    _startTime = null;
+    _pauseStartTime = null;
+    _totalPauseTime = Duration.zero;
+
+    // 런닝 상태 종료
+    statusProvider.stopRunning();
+
     notifyListeners();
   }
 
   @override
   void dispose() {
-    stopTracking(); // 추적 종료 처리
+    _positionSubscription?.cancel();
+    _coordinateTimer?.cancel();
     super.dispose();
   }
 }

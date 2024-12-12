@@ -90,7 +90,7 @@ class RunningResultView extends StatelessWidget {
                     distance: totalDistance,
                     coordinates: coordinates,
                   );
-                  runningViewModel.stopTracking(); // 추적 종료
+                  runningViewModel.stopTracking(context); // 추적 종료
                   Navigator.pushReplacementNamed(context, '/');
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('User record saved')),
@@ -153,7 +153,7 @@ class RunningResultView extends StatelessWidget {
                             description: description,
                             region: translatedRegion,
                           );
-                          runningViewModel.stopTracking(); // 추적 종료
+                          runningViewModel.stopTracking(context); // 추적 종료
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
