@@ -99,6 +99,7 @@ class RunningViewModel extends ChangeNotifier {
       // 3초마다 좌표 저장
       _coordinateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
         if (!statusProvider.isRunning) return; // isRunning이 false이면 업데이트 중단
+        if (statusProvider.isPaused) return; // isPaused가 true 업데이트 중단
         if (_currentPosition != null &&
             (_coordinates.isEmpty ||
                 DateTime.now()
@@ -146,6 +147,7 @@ class RunningViewModel extends ChangeNotifier {
     _positionSubscription?.resume(); // 위치 업데이트 재개
     _coordinateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (!statusProvider.isRunning) return; // isRunning이 false이면 업데이트 중단
+      if (statusProvider.isPaused) return; // isPaused가 true 업데이트 중단
       if (_currentPosition != null &&
           (_coordinates.isEmpty ||
               DateTime.now()
