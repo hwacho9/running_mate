@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:running_mate/viewmodels/run_view_model.dart';
 import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
 
 class Saveroutedetailview extends StatefulWidget {
@@ -16,6 +18,8 @@ class _SaveroutedetailviewState extends State<Saveroutedetailview> {
 
   @override
   Widget build(BuildContext context) {
+    final runViewModel = context.read<RunViewModel>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ルートの詳細'),
@@ -58,9 +62,14 @@ class _SaveroutedetailviewState extends State<Saveroutedetailview> {
                   return;
                 }
 
-                // Save and return
+                // Save the track details
                 widget.onSave(name, description);
-                Navigator.pop(context);
+
+                // Clear temporary track points in the RunViewModel
+                runViewModel.clearRoute();
+
+                // Navigate to '/my-routes'
+                Navigator.pushNamed(context, '/my-routes');
               },
             ),
           ],
