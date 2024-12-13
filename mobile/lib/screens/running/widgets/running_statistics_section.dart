@@ -27,7 +27,7 @@ class RunningStatisticsSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildStatistic("距離", "${totalDistance.toStringAsFixed(2)} km"),
-            _buildStatistic("移動時間", _formatDuration(duration)),
+            _buildStatistic("時間", _formatDuration(duration)),
             _buildStatistic("平均速度", "${averageSpeed.toStringAsFixed(1)} km/h"),
           ],
         ),
@@ -35,7 +35,7 @@ class RunningStatisticsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildStatistic("休憩時間", _formatDuration(pauseTime)),
+            _buildStatistic("休憩時間", _formatPauseTime(pauseTime)),
             _buildStatistic("開始時間", _formatTime(startTime)),
             _buildStatistic("終了時間", _formatTime(endTime)),
           ],
@@ -65,6 +65,11 @@ class RunningStatisticsSection extends StatelessWidget {
     final minutes = duration.inMinutes % 60;
     final seconds = duration.inSeconds % 60;
     return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+  }
+
+  String _formatPauseTime(Duration pauseTime) {
+    final minutes = pauseTime.inMinutes;
+    return "${minutes}分"; // XX分 형식으로 표시
   }
 
   String _formatTime(DateTime time) {

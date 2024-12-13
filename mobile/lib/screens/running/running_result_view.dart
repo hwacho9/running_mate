@@ -163,6 +163,20 @@ class RunningResultView extends StatelessWidget {
                 );
               },
             ),
+            TextButton(
+              onPressed: () {
+                runningViewModel.stopTracking(context); // 기록 추적 종료
+                Navigator.pushReplacementNamed(context, '/'); // 홈으로 이동
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red.shade300, // 텍스트 색상
+                textStyle: const TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              child: const Text('記録を破棄する'),
+            ),
           ],
         ),
       ),
