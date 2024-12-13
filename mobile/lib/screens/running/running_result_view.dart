@@ -43,7 +43,7 @@ class RunningResultView extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.arrow_back),
+          icon: const Text("再開"),
         ),
       ),
       body: Padding(
@@ -145,7 +145,7 @@ class RunningResultView extends StatelessWidget {
                             description: description,
                             region: translatedRegion,
                           );
-                          runningViewModel.stopTracking(context); // 追跡終了
+
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

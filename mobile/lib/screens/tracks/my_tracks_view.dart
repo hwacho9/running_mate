@@ -22,7 +22,7 @@ class _MyTracksViewState extends State<MyTracksView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<MyTracksViewModel>();
-    print(viewModel.routes[1].name);
+
     return Scaffold(
       appBar: AppBar(title: const Text('My Routes')),
       body: viewModel.isLoading

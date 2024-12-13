@@ -166,13 +166,16 @@ class RunningViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void stopTracking(BuildContext context) {
+  Future<void> stopTracking(BuildContext context) async {
     final statusProvider =
         Provider.of<RunningStatusProvider>(context, listen: false);
 
     // 타이머와 스트림 구독 해제
     _coordinateTimer?.cancel();
     _positionSubscription?.cancel();
+
+    // 비동기 작업이 필요한 경우 처리
+    await Future.delayed(Duration(milliseconds: 100)); // 예시로 딜레이 추가
 
     // 데이터 초기화
     _coordinates.clear();

@@ -32,7 +32,45 @@ class Trackservice {
       'coordinates': coordList,
     });
 
-    return docRef.id; // Return the document ID
+    final trackId = docRef.id; // Retrieve the document ID
+
+    // Add the track to UserTracks
+    // await addToUserTracks(trackId);
+
+    return trackId; // Return the document ID
+  }
+
+  Future<void> addToUserTracks(String trackId) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception("User not logged in");
+    }
+
+    final userTrackRef = _firestore.collection('UserTracks').doc(user.uid);
+
+    await _firestore.runTransaction((transaction) async {
+      final userTrackSnapshot = await transaction.get(userTrackRef);
+
+      if (!userTrackSnapshot.exists) {
+        // Create a new document if it doesn't exist
+        transaction.set(userTrackRef, {
+          'tracks': [
+            {'track_id': trackId, 'joined_at': FieldValue.serverTimestamp()}
+          ],
+        });
+      } else {
+        // Update the existing document
+        final tracks = List<Map<String, dynamic>>.from(
+            userTrackSnapshot.data()?['tracks'] ?? []);
+
+        // Prevent duplicate entries
+        if (!tracks.any((track) => track['track_id'] == trackId)) {
+          tracks.add(
+              {'track_id': trackId, 'joined_at': FieldValue.serverTimestamp()});
+          transaction.update(userTrackRef, {'tracks': tracks});
+        }
+      }
+    });
   }
 
   Future<List<RouteModel>> fetchTracks() async {

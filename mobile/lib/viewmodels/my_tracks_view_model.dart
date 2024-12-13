@@ -3,9 +3,9 @@ import 'package:running_mate/models/route_model.dart';
 import 'package:running_mate/services/track_service.dart';
 
 class MyTracksViewModel extends ChangeNotifier {
-  final Trackservice _routeService;
+  final Trackservice _trackService;
 
-  MyTracksViewModel(this._routeService);
+  MyTracksViewModel(this._trackService);
 
   List<RouteModel> _routes = [];
   bool _isLoading = false;
@@ -18,7 +18,7 @@ class MyTracksViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _routes = await _routeService.fetchTracks();
+      _routes = await _trackService.fetchTracks();
     } catch (e) {
       print("Error loading routes: $e");
     } finally {

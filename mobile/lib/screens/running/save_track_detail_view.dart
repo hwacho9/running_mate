@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/viewmodels/run_view_model.dart';
+import 'package:running_mate/viewmodels/running_view_model.dart';
 import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
 
 class Saveroutedetailview extends StatefulWidget {
@@ -19,6 +20,7 @@ class _SaveroutedetailviewState extends State<Saveroutedetailview> {
   @override
   Widget build(BuildContext context) {
     final runViewModel = context.read<RunViewModel>();
+    final runningViewModel = context.watch<RunningViewModel>();
 
     return Scaffold(
       appBar: AppBar(
@@ -51,7 +53,7 @@ class _SaveroutedetailviewState extends State<Saveroutedetailview> {
             const SizedBox(height: 16),
             RectangleButton(
               text: '保存',
-              onPressed: () {
+              onPressed: () async {
                 final name = _nameController.text.trim();
                 final description = _descriptionController.text.trim();
 
@@ -67,9 +69,11 @@ class _SaveroutedetailviewState extends State<Saveroutedetailview> {
 
                 // Clear temporary track points in the RunViewModel
                 runViewModel.clearRoute();
+                await runningViewModel.stopTracking(context); // 追跡終了
 
-                // Navigate to '/my-routes'
-                Navigator.pushNamed(context, '/my-routes');
+                // Navigate to '/' and clear navigation stack
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/', (route) => false);
               },
             ),
           ],
