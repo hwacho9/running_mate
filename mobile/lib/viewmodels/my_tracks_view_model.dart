@@ -7,20 +7,22 @@ class MyTracksViewModel extends ChangeNotifier {
 
   MyTracksViewModel(this._trackService);
 
-  List<RouteModel> _routes = [];
+  List<RouteModel> _tracks = [];
   bool _isLoading = false;
 
-  List<RouteModel> get routes => _routes;
+  List<RouteModel> get tracks => _tracks;
   bool get isLoading => _isLoading;
 
-  Future<void> loadRoutes() async {
+  /// 사용자 트랙 불러오기
+  Future<void> loadUserTracks() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      _routes = await _trackService.fetchTracks();
+      _tracks = await _trackService.fetchTracks();
+      print(_tracks);
     } catch (e) {
-      print("Error loading routes: $e");
+      print("Error loading tracks: $e");
     } finally {
       _isLoading = false;
       notifyListeners();

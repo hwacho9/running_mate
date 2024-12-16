@@ -1,7 +1,6 @@
 // services/run_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:running_mate/models/route_model.dart';
 
@@ -31,6 +30,7 @@ class Trackservice {
       'distance': distance,
       'created_at': FieldValue.serverTimestamp(),
       'coordinates': coordList,
+      'participants_count': 1, // 기본값 1로 설정
     });
 
     final trackId = docRef.id; // Retrieve the document ID
@@ -77,19 +77,35 @@ class Trackservice {
     }
   }
 
+  /// 사용자의 트랙 목록 가져오기
   Future<List<RouteModel>> fetchTracks() async {
     final user = _auth.currentUser;
     if (user == null) {
       throw Exception("User not logged in");
     }
 
-    final snapshot = await _firestore
-        .collection('Tracks')
-        .where('creator_id', isEqualTo: user.uid)
-        .get();
+    // UserTracks에서 사용자의 트랙 ID 가져오기
+    final userTracksDoc =
+        await _firestore.collection('UserTracks').doc(user.uid).get();
 
-    return snapshot.docs
-        .map((doc) => RouteModel.fromFirestore(doc.id, doc.data()))
-        .toList();
+    if (!userTracksDoc.exists) {
+      return [];
+    }
+
+    final tracks = userTracksDoc['tracks'] as List<dynamic>;
+    List<String> trackIds = tracks.map((e) => e['track_id'] as String).toList();
+
+    print("User tracks: $trackIds");
+
+    // Tracks 컬렉션에서 트랙 세부 정보 가져오기
+    List<RouteModel> userRoutes = [];
+    for (String trackId in trackIds) {
+      final trackDoc = await _firestore.collection('Tracks').doc(trackId).get();
+      if (trackDoc.exists) {
+        userRoutes.add(RouteModel.fromFirestore(trackId, trackDoc.data()!));
+      }
+    }
+
+    return userRoutes;
   }
 }

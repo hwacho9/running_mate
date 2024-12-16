@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:running_mate/screens/running/widgets/routelist_tile.dart';
+import 'package:running_mate/screens/tracks/widgets/track_list_tile.dart';
 import 'package:running_mate/viewmodels/my_tracks_view_model.dart';
 
 class MyTracksView extends StatefulWidget {
   const MyTracksView({super.key});
 
   @override
-  _MyTracksViewState createState() => _MyTracksViewState();
+  State<MyTracksView> createState() => _MyTracksViewState();
 }
 
 class _MyTracksViewState extends State<MyTracksView> {
@@ -15,33 +15,80 @@ class _MyTracksViewState extends State<MyTracksView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MyTracksViewModel>().loadRoutes();
+      context.read<MyTracksViewModel>().loadUserTracks();
     });
+  }
+
+  Future<void> _refreshData() async {
+    // 데이터 새로고침 함수
+    await context.read<MyTracksViewModel>().loadUserTracks();
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<MyTracksViewModel>();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Routes')),
-      body: viewModel.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : viewModel.routes.isEmpty
-              ? const Center(
-                  child: Text('No routes saved yet.'),
-                )
-              : ListView.builder(
-                  itemCount: viewModel.routes.length,
-                  itemBuilder: (context, index) {
-                    final route = viewModel.routes[index];
-                    return RouteListTile(
-                      name: route.name,
-                      distance: route.distance,
-                      coordinates: route.coordinates,
-                    );
-                  },
-                ),
+    return DefaultTabController(
+      length: 2, // Tab 개수 설정
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('Routes'),
+          bottom: const TabBar(
+            labelColor: Colors.black,
+            indicatorColor: Colors.red,
+            indicatorWeight: 3,
+            tabs: [
+              Tab(text: "My Tracks"),
+              Tab(text: "BOOKMARKED"),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            // 첫 번째 탭: My Tracks
+            RefreshIndicator(
+              onRefresh: _refreshData,
+              child: viewModel.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : CustomScrollView(
+                      slivers: [
+                        viewModel.tracks.isEmpty
+                            ? SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: Center(
+                                  child: Text(
+                                    'No routes saved yet.',
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.grey),
+                                  ),
+                                ),
+                              )
+                            : SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final track = viewModel.tracks[index];
+                                    return TrackListTile(
+                                      name: track.name,
+                                      distance: track.distance,
+                                      region: track.region ?? "",
+                                      createdAt:
+                                          track.createdAt ?? DateTime.now(),
+                                    );
+                                  },
+                                  childCount: viewModel.tracks.length,
+                                ),
+                              ),
+                      ],
+                    ),
+            ),
+            // 두 번째 탭: BOOKMARKED
+            const Center(
+              child: Text('No bookmarked routes yet.'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
