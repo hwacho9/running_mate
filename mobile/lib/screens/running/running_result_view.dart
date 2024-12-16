@@ -102,7 +102,7 @@ class RunningResultView extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Saveroutedetailview(
+                    builder: (context) => SaveTrackdetailview(
                       onSave: (name, description) async {
                         final authViewModel = context.read<AuthViewModel>();
                         final userId = authViewModel.user?.uid ?? '';

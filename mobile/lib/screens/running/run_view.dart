@@ -80,13 +80,14 @@ class _RunViewState extends State<RunView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ランニング'),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Saveroutedetailview(
+                  builder: (context) => SaveTrackdetailview(
                     onSave: (name, description) async {
                       bool saved = await viewModel.saveRouteWithDetails(
                         name: name,

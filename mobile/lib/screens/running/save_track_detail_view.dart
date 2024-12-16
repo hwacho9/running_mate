@@ -4,16 +4,16 @@ import 'package:running_mate/viewmodels/run_view_model.dart';
 import 'package:running_mate/viewmodels/running_view_model.dart';
 import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
 
-class Saveroutedetailview extends StatefulWidget {
+class SaveTrackdetailview extends StatefulWidget {
   final void Function(String name, String description) onSave;
 
-  const Saveroutedetailview({super.key, required this.onSave});
+  const SaveTrackdetailview({super.key, required this.onSave});
 
   @override
-  _SaveroutedetailviewState createState() => _SaveroutedetailviewState();
+  _SaveTrackdetailviewState createState() => _SaveTrackdetailviewState();
 }
 
-class _SaveroutedetailviewState extends State<Saveroutedetailview> {
+class _SaveTrackdetailviewState extends State<SaveTrackdetailview> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 

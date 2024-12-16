@@ -82,6 +82,8 @@ class RunningResultViewModel extends ChangeNotifier {
         coordinates: coordinates,
         totalPauseTime: pauseTime, // 휴식 시간 전달
       );
+
+      await _trackService.addToUserTracks(userId, trackId);
     } catch (e) {
       print('Failed to save track and user record: $e');
       rethrow;

@@ -7,9 +7,9 @@ import 'package:running_mate/utils/regionConverter.dart';
 import '../services/track_service.dart';
 
 class RunViewModel extends ChangeNotifier {
-  Trackservice _runService;
+  final Trackservice _trackService;
 
-  RunViewModel(this._runService);
+  RunViewModel(this._trackService);
 
   List<LatLng> _routePoints = [];
   LatLng? _currentPosition;
@@ -109,30 +109,38 @@ class RunViewModel extends ChangeNotifier {
         ? convertKoreanToJapanese(_region)
         : _region;
 
-    await _runService.saveTrack(
-      name: name,
-      creatorId: creatorId,
-      description: description,
-      region: translatedRegion,
-      distance: _distance,
-      coordinates: _routePoints,
-    );
+    try {
+      final trackId = await _trackService.saveTrack(
+        name: name,
+        creatorId: creatorId,
+        description: description,
+        region: translatedRegion,
+        distance: _distance,
+        coordinates: _routePoints,
+      );
 
-    _routePoints.clear();
-    _distance = 0.0;
-    notifyListeners();
-    return true;
+      await _trackService.addToUserTracks(creatorId, trackId); // 유저 트랙에 추가
+      _routePoints.clear();
+      _distance = 0.0;
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Error saving route: $e');
+      return false;
+    }
   }
 
-  Future<bool> saveRouteWithDetails(
-      {required String name, required String description}) async {
+  Future<bool> saveRouteWithDetails({
+    required String name,
+    required String description,
+  }) async {
     if (_routePoints.isEmpty) return false;
 
-    this.name = name; // 사용자 입력 값 저장
+    this.name = name;
     this.description = description;
 
-    await saveRoute();
-    return true;
+    return await saveRoute();
   }
 
   void clearRoute() {

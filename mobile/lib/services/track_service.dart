@@ -1,6 +1,7 @@
 // services/run_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:running_mate/models/route_model.dart';
 
@@ -34,43 +35,46 @@ class Trackservice {
 
     final trackId = docRef.id; // Retrieve the document ID
 
-    // Add the track to UserTracks
-    // await addToUserTracks(trackId);
-
     return trackId; // Return the document ID
   }
 
-  Future<void> addToUserTracks(String trackId) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      throw Exception("User not logged in");
-    }
+  // UserTracks 컬렉션에 사용자가 참여한 트랙을 추가하는 메서드
+  Future<void> addToUserTracks(String userId, String trackId) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-    final userTrackRef = _firestore.collection('UserTracks').doc(user.uid);
+    try {
+      final userDocRef = firestore.collection('UserTracks').doc(userId);
 
-    await _firestore.runTransaction((transaction) async {
-      final userTrackSnapshot = await transaction.get(userTrackRef);
+      // 명시적으로 현재 시간을 가져옵니다.
+      final Timestamp currentTime = Timestamp.now();
 
-      if (!userTrackSnapshot.exists) {
-        // Create a new document if it doesn't exist
-        transaction.set(userTrackRef, {
-          'tracks': [
-            {'track_id': trackId, 'joined_at': FieldValue.serverTimestamp()}
-          ],
+      final userTrackData = {
+        'track_id': trackId,
+        'joined_at': currentTime,
+      };
+
+      // Check if the document already exists
+      final docSnapshot = await userDocRef.get();
+
+      if (docSnapshot.exists) {
+        // If the document exists, update the tracks array
+        print("Document exists. Updating...");
+        await userDocRef.update({
+          'tracks': FieldValue.arrayUnion([userTrackData]),
         });
       } else {
-        // Update the existing document
-        final tracks = List<Map<String, dynamic>>.from(
-            userTrackSnapshot.data()?['tracks'] ?? []);
-
-        // Prevent duplicate entries
-        if (!tracks.any((track) => track['track_id'] == trackId)) {
-          tracks.add(
-              {'track_id': trackId, 'joined_at': FieldValue.serverTimestamp()});
-          transaction.update(userTrackRef, {'tracks': tracks});
-        }
+        print("Document does not exist. Creating new document...");
+        // If the document does not exist, create it with the tracks array
+        await userDocRef.set({
+          'tracks': [userTrackData], // arrayUnion이 필요하지 않습니다.
+        });
       }
-    });
+
+      print('Track added successfully for user: $userId');
+    } catch (e) {
+      print('Failed to add track: $e');
+      rethrow;
+    }
   }
 
   Future<List<RouteModel>> fetchTracks() async {
