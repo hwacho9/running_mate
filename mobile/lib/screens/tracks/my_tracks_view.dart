@@ -68,12 +68,21 @@ class _MyTracksViewState extends State<MyTracksView> {
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) {
                                     final track = viewModel.tracks[index];
+
+                                    // coordinates (List<LatLng>)를 List<Map<String, dynamic>>로 변환
+                                    final routePoints = track.coordinates
+                                        .map((latLng) => {
+                                              'lat': latLng.latitude,
+                                              'lng': latLng.longitude
+                                            })
+                                        .toList();
                                     return TrackListTile(
                                       name: track.name,
                                       distance: track.distance,
                                       region: track.region ?? "",
                                       createdAt:
                                           track.createdAt ?? DateTime.now(),
+                                      routePoints: routePoints,
                                     );
                                   },
                                   childCount: viewModel.tracks.length,
