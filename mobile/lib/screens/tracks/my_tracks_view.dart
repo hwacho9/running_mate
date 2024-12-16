@@ -54,7 +54,7 @@ class _MyTracksViewState extends State<MyTracksView> {
                   : CustomScrollView(
                       slivers: [
                         viewModel.tracks.isEmpty
-                            ? SliverFillRemaining(
+                            ? const SliverFillRemaining(
                                 hasScrollBody: false,
                                 child: Center(
                                   child: Text(
@@ -76,6 +76,7 @@ class _MyTracksViewState extends State<MyTracksView> {
                                               'lng': latLng.longitude
                                             })
                                         .toList();
+
                                     return TrackListTile(
                                       name: track.name,
                                       distance: track.distance,

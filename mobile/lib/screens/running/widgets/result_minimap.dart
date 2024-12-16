@@ -4,8 +4,10 @@ import 'package:latlong2/latlong.dart';
 
 class ResultMinimap extends StatelessWidget {
   final List<Map<String, dynamic>> routePoints;
+  final double initialZoom;
 
-  const ResultMinimap({super.key, required this.routePoints});
+  const ResultMinimap(
+      {super.key, required this.routePoints, required this.initialZoom});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class ResultMinimap extends StatelessWidget {
       child: FlutterMap(
         options: MapOptions(
           initialCenter: points.isNotEmpty ? points.first : LatLng(34.7, 135.2),
-          initialZoom: 15.0,
+          initialZoom: initialZoom,
         ),
         children: [
           TileLayer(

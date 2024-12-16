@@ -63,7 +63,7 @@ class RunningResultView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             // マップビュー
-            ResultMinimap(routePoints: coordinates),
+            ResultMinimap(routePoints: coordinates, initialZoom: 18),
             const SizedBox(height: 25),
             // ボタンセクション
             RunningButtonsSection(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:running_mate/screens/running/widgets/result_minimap.dart';
+import 'package:running_mate/utils/format.dart';
 
 class TrackListTile extends StatelessWidget {
   final String name;
@@ -22,6 +23,7 @@ class TrackListTile extends StatelessWidget {
     return SizedBox(
       height: 140, // Card의 전체 높이 조정
       child: Card(
+        color: Colors.white,
         margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         elevation: 3,
         child: Padding(
@@ -33,7 +35,10 @@ class TrackListTile extends StatelessWidget {
                 height: 100, // 지도 섹션의 높이
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: ResultMinimap(routePoints: routePoints),
+                  child: ResultMinimap(
+                    routePoints: routePoints,
+                    initialZoom: 12,
+                  ),
                 ),
               ),
               const SizedBox(width: 12), // 지도와 정보 사이의 간격
@@ -59,7 +64,7 @@ class TrackListTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _formatDate(createdAt),
+                      formatDate(createdAt),
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 12,
@@ -74,9 +79,5 @@ class TrackListTile extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return "${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}";
   }
 }
