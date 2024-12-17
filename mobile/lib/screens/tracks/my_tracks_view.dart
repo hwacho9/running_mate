@@ -44,59 +44,62 @@ class _MyTracksViewState extends State<MyTracksView> {
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            // 첫 번째 탭: My Tracks
-            RefreshIndicator(
-              onRefresh: _refreshData,
-              child: viewModel.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : CustomScrollView(
-                      slivers: [
-                        viewModel.tracks.isEmpty
-                            ? const SliverFillRemaining(
-                                hasScrollBody: false,
-                                child: Center(
-                                  child: Text(
-                                    'No routes saved yet.',
-                                    style: TextStyle(
-                                        fontSize: 16, color: Colors.grey),
+        body: Container(
+          color: Colors.grey[100],
+          child: TabBarView(
+            children: [
+              // 첫 번째 탭: My Tracks
+              RefreshIndicator(
+                onRefresh: _refreshData,
+                child: viewModel.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : CustomScrollView(
+                        slivers: [
+                          viewModel.tracks.isEmpty
+                              ? const SliverFillRemaining(
+                                  hasScrollBody: false,
+                                  child: Center(
+                                    child: Text(
+                                      'No routes saved yet.',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.grey),
+                                    ),
+                                  ),
+                                )
+                              : SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      final track = viewModel.tracks[index];
+
+                                      // coordinates (List<LatLng>)를 List<Map<String, dynamic>>로 변환
+                                      final routePoints = track.coordinates
+                                          .map((latLng) => {
+                                                'lat': latLng.latitude,
+                                                'lng': latLng.longitude
+                                              })
+                                          .toList();
+
+                                      return TrackListTile(
+                                        name: track.name,
+                                        distance: track.distance,
+                                        region: track.region ?? "",
+                                        createdAt:
+                                            track.createdAt ?? DateTime.now(),
+                                        routePoints: routePoints,
+                                      );
+                                    },
+                                    childCount: viewModel.tracks.length,
                                   ),
                                 ),
-                              )
-                            : SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final track = viewModel.tracks[index];
-
-                                    // coordinates (List<LatLng>)를 List<Map<String, dynamic>>로 변환
-                                    final routePoints = track.coordinates
-                                        .map((latLng) => {
-                                              'lat': latLng.latitude,
-                                              'lng': latLng.longitude
-                                            })
-                                        .toList();
-
-                                    return TrackListTile(
-                                      name: track.name,
-                                      distance: track.distance,
-                                      region: track.region ?? "",
-                                      createdAt:
-                                          track.createdAt ?? DateTime.now(),
-                                      routePoints: routePoints,
-                                    );
-                                  },
-                                  childCount: viewModel.tracks.length,
-                                ),
-                              ),
-                      ],
-                    ),
-            ),
-            // 두 번째 탭: BOOKMARKED
-            const Center(
-              child: Text('No bookmarked routes yet.'),
-            ),
-          ],
+                        ],
+                      ),
+              ),
+              // 두 번째 탭: BOOKMARKED
+              const Center(
+                child: Text('No bookmarked routes yet.'),
+              ),
+            ],
+          ),
         ),
       ),
     );

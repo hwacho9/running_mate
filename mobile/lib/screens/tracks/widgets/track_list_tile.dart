@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:running_mate/screens/running/widgets/result_minimap.dart';
+import 'package:running_mate/widgets/result_minimap.dart';
 import 'package:running_mate/utils/format.dart';
 
 class TrackListTile extends StatelessWidget {
@@ -24,8 +24,8 @@ class TrackListTile extends StatelessWidget {
       height: 140, // Card의 전체 높이 조정
       child: Card(
         color: Colors.white,
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        elevation: 3,
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        elevation: 0.5,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -34,7 +34,7 @@ class TrackListTile extends StatelessWidget {
                 width: 100, // 지도 섹션의 너비
                 height: 100, // 지도 섹션의 높이
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                   child: ResultMinimap(
                     routePoints: routePoints,
                     initialZoom: 12,
