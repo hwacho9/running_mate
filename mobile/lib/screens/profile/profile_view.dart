@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
+import 'package:running_mate/screens/profile/widgets/profile_run_calendar.dart';
 import 'package:running_mate/screens/profile/widgets/profile_stat_grid.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:running_mate/viewmodels/profile_view_model.dart';
@@ -124,8 +125,9 @@ class _ProfileViewState extends State<ProfileView>
                                   totalTime: userStats.totalTime,
                                   lastRunDate: userStats.lastRunDate!.toDate(),
                                 ),
-                              const SizedBox(height: 16),
-                              const Text("Calendar Placeholder"),
+                              const SizedBox(height: 5),
+                              ProfileRunCalendar(
+                                  runDates: profileViewModel.runDates),
                             ],
                           ),
                         ),
