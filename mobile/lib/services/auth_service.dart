@@ -115,4 +115,21 @@ class AuthService {
     }
     return null;
   }
+
+  // 계정 삭제
+  Future<void> deleteAccount(String uid) async {
+    try {
+      // Firestore에서 사용자 데이터 삭제
+      await _firestore.collection('Users').doc(uid).delete();
+
+      // Firebase Auth에서 사용자 계정 삭제
+      final user = _firebaseAuth.currentUser;
+      if (user != null) {
+        await user.delete();
+      }
+    } catch (e) {
+      print("Error deleting account: $e");
+      rethrow;
+    }
+  }
 }

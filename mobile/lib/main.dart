@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Provider import
@@ -9,10 +8,12 @@ import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/tracks/my_tracks_view.dart';
 import 'package:running_mate/screens/running/run_view.dart';
 import 'package:running_mate/screens/running/running_result_view.dart';
+import 'package:running_mate/services/auth_service.dart';
 import 'package:running_mate/services/track_service.dart';
 import 'package:running_mate/services/user_record_service.dart';
 import 'package:running_mate/services/user_service.dart';
 import 'package:running_mate/services/user_stats_service.dart';
+import 'package:running_mate/viewmodels/edit_profile_view_model.dart';
 import 'package:running_mate/viewmodels/home_view_model.dart';
 import 'package:running_mate/viewmodels/my_tracks_view_model.dart';
 import 'package:running_mate/viewmodels/profile_view_model.dart';
@@ -79,6 +80,11 @@ class MyApp extends StatelessWidget {
           create: (_) => ProfileViewModel(
             UserService(),
             UserRecordService(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => EditProfileViewModel(
+            AuthService(),
           ),
         ),
       ],
