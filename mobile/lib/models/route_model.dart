@@ -9,6 +9,7 @@ class RouteModel {
   final double distance;
   final DateTime? createdAt;
   final String? region;
+  final double participantsCcount;
 
   RouteModel({
     required this.id,
@@ -18,6 +19,7 @@ class RouteModel {
     required this.distance,
     this.createdAt,
     this.region,
+    this.participantsCcount = 1,
   });
 
   factory RouteModel.fromFirestore(String id, Map<String, dynamic> data) {
@@ -34,6 +36,7 @@ class RouteModel {
       distance: data['distance'] as double,
       createdAt: (data['created_at'] as Timestamp?)?.toDate(),
       region: data['region'] as String?,
+      participantsCcount: (data['participants_count'] as num).toDouble(),
     );
   }
 }

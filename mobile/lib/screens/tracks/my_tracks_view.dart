@@ -33,7 +33,7 @@ class _MyTracksViewState extends State<MyTracksView> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text('Routes'),
+          title: const Text('Tracks'),
           bottom: const TabBar(
             labelColor: Colors.black,
             indicatorColor: Colors.red,
@@ -80,6 +80,7 @@ class _MyTracksViewState extends State<MyTracksView> {
                                           .toList();
 
                                       return TrackListTile(
+                                        trackId: track.id,
                                         name: track.name,
                                         distance: track.distance,
                                         region: track.region ?? "",
