@@ -1,16 +1,17 @@
 import 'package:flutter/foundation.dart';
 
 class RunningStatusProvider extends ChangeNotifier {
-  bool _isRunning = false; // 런닝 진행 여부
-  bool _isPaused = false; // 일시정지 여부
+  bool _isRunning = false;
+  bool _isPaused = false;
 
   bool get isRunning => _isRunning;
   bool get isPaused => _isPaused;
 
-  void startRunning() {
+  void startRunning(Function(bool) updateCallback) {
     _isRunning = true;
     _isPaused = false;
     notifyListeners();
+    updateCallback(_isRunning); // Firebase 업데이트
   }
 
   void pauseRunning() {
@@ -23,9 +24,10 @@ class RunningStatusProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void stopRunning() {
+  void stopRunning(Function(bool) updateCallback) {
     _isRunning = false;
     _isPaused = false;
     notifyListeners();
+    updateCallback(_isRunning); // Firebase 업데이트
   }
 }

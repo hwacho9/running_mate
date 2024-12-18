@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/provider/running_status_provider.dart';
+import 'package:running_mate/services/running_status_service.dart';
 
 class RunningViewModel extends ChangeNotifier {
   List<Map<String, dynamic>> _coordinates = []; // 시간, 위치 저장
@@ -27,6 +29,10 @@ class RunningViewModel extends ChangeNotifier {
   double get heading => _heading;
   DateTime? get startTime => _startTime;
   Duration get totalPauseTime => _totalPauseTime;
+
+  // 로그인중인 유저 firebase auth로부터 uid가져오기
+
+  User? user = FirebaseAuth.instance.currentUser;
 
   Future<void> checkPermissions() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -55,6 +61,8 @@ class RunningViewModel extends ChangeNotifier {
   Future<void> startTracking(BuildContext context) async {
     final statusProvider =
         Provider.of<RunningStatusProvider>(context, listen: false);
+    final runningStatusService = RunningStatusService(); // Firebase 서비스 인스턴스
+    final userId = user?.uid;
 
     // 이미 실행 중인 경우 중단
     if (_positionSubscription != null || _coordinateTimer != null) {
@@ -75,15 +83,19 @@ class RunningViewModel extends ChangeNotifier {
       _heading = initialPosition.heading;
       notifyListeners();
 
-      _startTime = DateTime.now(); // 시작 시간 기록
-      statusProvider.startRunning(); // 상태 업데이트
+      _startTime = DateTime.now();
+
+      // 상태 시작 및 Firebase 업데이트 콜백 전달
+      statusProvider.startRunning((isRunning) async {
+        await runningStatusService.updateRunningStatus(userId!, isRunning);
+      });
 
       // 위치 스트림 설정
       _positionSubscription = Geolocator.getPositionStream(
         locationSettings:
             const LocationSettings(accuracy: LocationAccuracy.high),
       ).listen((position) {
-        if (!statusProvider.isRunning) return; // isRunning이 false이면 업데이트 중단
+        if (!statusProvider.isRunning) return;
         _currentPosition = LatLng(position.latitude, position.longitude);
         _heading = position.heading;
 
@@ -105,14 +117,8 @@ class RunningViewModel extends ChangeNotifier {
 
       // 3초마다 좌표 저장
       _coordinateTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-        if (!statusProvider.isRunning) return; // isRunning이 false이면 업데이트 중단
-        if (statusProvider.isPaused) return; // isPaused가 true 업데이트 중단
-        if (_currentPosition != null &&
-            (_coordinates.isEmpty ||
-                DateTime.now()
-                        .difference(DateTime.parse(_coordinates.last['time']))
-                        .inSeconds >=
-                    3)) {
+        if (!statusProvider.isRunning || statusProvider.isPaused) return;
+        if (_currentPosition != null) {
           _coordinates.add({
             'time': DateTime.now().toIso8601String(),
             'lat': _currentPosition!.latitude,
@@ -176,15 +182,14 @@ class RunningViewModel extends ChangeNotifier {
   Future<void> stopTracking(BuildContext context) async {
     final statusProvider =
         Provider.of<RunningStatusProvider>(context, listen: false);
+    final runningStatusService = RunningStatusService(); // Firebase 서비스 인스턴스
+    final userId = user?.uid; // 실제 사용자 ID로 대체
 
-    // 타이머와 스트림 구독 해제
     _coordinateTimer?.cancel();
     _positionSubscription?.cancel();
 
-    // 비동기 작업이 필요한 경우 처리
-    await Future.delayed(Duration(milliseconds: 100)); // 예시로 딜레이 추가
+    await Future.delayed(Duration(milliseconds: 100));
 
-    // 데이터 초기화
     _coordinates.clear();
     _currentPosition = null;
     _previousPosition = null;
@@ -195,12 +200,13 @@ class RunningViewModel extends ChangeNotifier {
     _totalPauseTime = Duration.zero;
     _routePoints.clear();
 
-    // 런닝 상태 종료 및 상태 초기화
     _coordinateTimer = null;
     _positionSubscription = null;
 
-    // 런닝 상태 종료
-    statusProvider.stopRunning();
+    // 상태 종료 및 Firebase 업데이트 콜백 전달
+    statusProvider.stopRunning((isRunning) async {
+      await runningStatusService.updateRunningStatus(userId!, isRunning);
+    });
 
     notifyListeners();
   }
