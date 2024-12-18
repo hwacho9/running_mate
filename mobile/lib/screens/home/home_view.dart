@@ -43,23 +43,16 @@ class _HomeViewState extends State<HomeView> {
       appBar: AppBar(
         title: const Text("ホーム画面"),
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.person),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfileView()),
-            );
-          },
-        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authViewModel.logout();
-              Navigator.pushReplacement(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => LoginView()),
+                MaterialPageRoute(
+                    builder: (_) => ProfileView(
+                          userId: authViewModel.user!.uid,
+                        )),
               );
             },
           ),
