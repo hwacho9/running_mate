@@ -18,11 +18,19 @@ class AuthService {
       final user = userCredential.user;
 
       if (user != null) {
-        await _firestore.collection('Users').doc(user.uid).set({
+        final userDocRef = _firestore.collection('Users').doc(user.uid);
+
+        // 사용자 문서 생성 및 초기 데이터 설정
+        await userDocRef.set({
           'email': email,
           'uid': user.uid,
+          'isRunning': false,
           'createdAt': FieldValue.serverTimestamp(),
         });
+
+        // Following 및 Followers 서브컬렉션 초기화
+        final followingRef = userDocRef.collection('Following');
+        final followersRef = userDocRef.collection('Followers');
 
         return UserModel(
           uid: user.uid,
