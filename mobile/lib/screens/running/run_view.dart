@@ -116,7 +116,7 @@ class _RunViewState extends State<RunView> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: viewModel.currentPosition ?? LatLng(34.70, 135.2),
-              initialZoom: 15.0,
+              initialZoom: 18.0,
               onTap: _isDrawingMode
                   ? (tapPosition, latLng) {
                       setState(() {

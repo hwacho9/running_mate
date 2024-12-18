@@ -84,7 +84,11 @@ class _HomeViewState extends State<HomeView> {
                         currentStreak: homeViewModel.userStats!.currentStreak,
                         totalDistance: homeViewModel.userStats!.totalDistance,
                       )
-                    : const Center(child: Text("スタッツがありません。")),
+                    : const StatGrid(
+                        totalRunCount: 0,
+                        totalRunDays: 0,
+                        currentStreak: 0,
+                        totalDistance: 0),
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 16),

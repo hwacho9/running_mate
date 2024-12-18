@@ -19,24 +19,24 @@ class RunningView extends StatefulWidget {
 }
 
 class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
+  late final MapController _mapController;
+  bool _keepCentered = true;
+
   @override
   void initState() {
     super.initState();
+    _mapController = MapController();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<RunningViewModel>();
       final statusProvider = context.read<RunningStatusProvider>();
 
-      print(widget.trackId);
-      print(widget.routePoints);
       if (widget.routePoints != null) {
-        // 기존 트랙 로드
         viewModel.loadRoutePoints(widget.routePoints!);
       } else {
-        // 새 트래킹 시작
         viewModel.startTracking(context);
       }
-      // 런닝 상태를 동기화
+
       if (statusProvider.isPaused) {
         viewModel.pauseTracking(context);
       } else if (statusProvider.isRunning) {
@@ -51,9 +51,9 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final viewModel = context.read<RunningViewModel>();
     if (state == AppLifecycleState.paused) {
-      viewModel.pauseTracking(context); // 백그라운드 상태 시 일시정지
+      viewModel.pauseTracking(context);
     } else if (state == AppLifecycleState.resumed) {
-      viewModel.resumeTracking(context); // 다시 활성화 시 재개
+      viewModel.resumeTracking(context);
     }
   }
 
@@ -63,12 +63,17 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  void _toggleCentering() {
+    setState(() {
+      _keepCentered = !_keepCentered;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<RunningViewModel>();
     final isPaused = context.watch<RunningStatusProvider>().isPaused;
 
-    // print(viewModel.totalPauseTime);
     if (viewModel.currentPosition == null) {
       return const Scaffold(
         body: Center(
@@ -77,22 +82,41 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
       );
     }
 
+    // Update map position if `_keepCentered` is true
+    if (_keepCentered && viewModel.currentPosition != null) {
+      _mapController.move(viewModel.currentPosition!, 18.0);
+    }
+
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pushReplacementNamed(context, '/'); // 홈 화면으로 이동
-        return false; // 뒤로가기 동작 중단
+        Navigator.pushReplacementNamed(context, '/');
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Running Tracker'),
+          actions: [
+            IconButton(
+              icon: Icon(_keepCentered ? Icons.gps_fixed : Icons.gps_not_fixed),
+              onPressed: _toggleCentering,
+            ),
+          ],
         ),
         body: Stack(
           children: [
             FlutterMap(
+              mapController: _mapController,
               options: MapOptions(
                 initialCenter:
                     viewModel.currentPosition ?? const LatLng(34.70, 135.2),
-                initialZoom: 15.0,
+                initialZoom: 18.0,
+                onPositionChanged: (camera, hasGesture) {
+                  if (hasGesture && _keepCentered) {
+                    setState(() {
+                      _keepCentered = false;
+                    });
+                  }
+                },
               ),
               children: [
                 TileLayer(
@@ -165,7 +189,7 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
         floatingActionButton: CircleFloatingActionButton(
           onPressed: () {
             if (!isPaused) {
-              viewModel.pauseTracking(context); // 완료 버튼을 눌러도 일시정지
+              viewModel.pauseTracking(context);
             }
             final endTime = DateTime.now();
             Navigator.push(

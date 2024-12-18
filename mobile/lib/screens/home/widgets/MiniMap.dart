@@ -4,7 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 class MiniMap extends StatefulWidget {
-  const MiniMap({Key? key}) : super(key: key);
+  const MiniMap({super.key});
 
   @override
   _MiniMapState createState() => _MiniMapState();
@@ -36,6 +36,7 @@ class _MiniMapState extends State<MiniMap> {
       setState(() {
         _currentPosition = LatLng(position.latitude, position.longitude);
         _mapController.move(_currentPosition!, 13.0);
+        print(_currentPosition);
       });
     } catch (e) {
       print("Error getting location: $e");
