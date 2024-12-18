@@ -27,8 +27,12 @@ class _ProfileViewState extends State<ProfileView>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final profileViewModel = context.read<ProfileViewModel>();
+      final authViewModel = context.read<AuthViewModel>();
+
       profileViewModel.loadUserProfile(widget.userId);
       profileViewModel.loadUserRecords(widget.userId);
+      profileViewModel.checkFollowingStatus(
+          authViewModel.user?.uid ?? '', widget.userId);
     });
   }
 
@@ -67,6 +71,8 @@ class _ProfileViewState extends State<ProfileView>
             nickname: nickname ?? 'User',
             followingCount: profileViewModel.followingCount,
             followersCount: profileViewModel.followersCount,
+            currentUserId: authViewModel.user?.uid ?? '',
+            profileUserId: widget.userId,
           ),
           const Divider(),
           TabBar(
@@ -79,19 +85,22 @@ class _ProfileViewState extends State<ProfileView>
             ],
           ),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                ProfileStatsPage(
-                  isLoading: profileViewModel.isLoading,
-                  userStats: profileViewModel.userStats,
-                  runDates: profileViewModel.runDates,
-                ),
-                ProfileRecordsPage(
-                  isLoadingRecords: profileViewModel.isLoadingRecords,
-                  userRecords: profileViewModel.userRecords,
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(13.0),
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  ProfileStatsPage(
+                    isLoading: profileViewModel.isLoading,
+                    userStats: profileViewModel.userStats,
+                    runDates: profileViewModel.runDates,
+                  ),
+                  ProfileRecordsPage(
+                    isLoadingRecords: profileViewModel.isLoadingRecords,
+                    userRecords: profileViewModel.userRecords,
+                  ),
+                ],
+              ),
             ),
           ),
         ],

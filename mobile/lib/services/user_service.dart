@@ -82,4 +82,69 @@ class UserService {
       rethrow;
     }
   }
+
+  Future<bool> isFollowingUser(
+      String currentUserId, String profileUserId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('Users')
+          .doc(currentUserId)
+          .collection('Following')
+          .doc(profileUserId)
+          .get();
+
+      return snapshot.exists;
+    } catch (e) {
+      print("Error checking following status: $e");
+      return false;
+    }
+  }
+
+  Future<void> followUser(String currentUserId, String profileUserId) async {
+    try {
+      final now = Timestamp.now();
+
+      // Add to "Following" of current user
+      await _firestore
+          .collection('Users')
+          .doc(currentUserId)
+          .collection('Following')
+          .doc(profileUserId)
+          .set({'followedAt': now});
+
+      // Add to "Followers" of profile user
+      await _firestore
+          .collection('Users')
+          .doc(profileUserId)
+          .collection('Followers')
+          .doc(currentUserId)
+          .set({'followedAt': now});
+    } catch (e) {
+      print("Error following user: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> unfollowUser(String currentUserId, String profileUserId) async {
+    try {
+      // Remove from "Following" of current user
+      await _firestore
+          .collection('Users')
+          .doc(currentUserId)
+          .collection('Following')
+          .doc(profileUserId)
+          .delete();
+
+      // Remove from "Followers" of profile user
+      await _firestore
+          .collection('Users')
+          .doc(profileUserId)
+          .collection('Followers')
+          .doc(currentUserId)
+          .delete();
+    } catch (e) {
+      print("Error unfollowing user: $e");
+      rethrow;
+    }
+  }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/provider/running_status_provider.dart';
-import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/home/widgets/MiniMap.dart';
 import 'package:running_mate/screens/home/widgets/stat_grid.dart';
 import 'package:running_mate/screens/profile/profile_view.dart';

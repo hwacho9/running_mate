@@ -18,7 +18,7 @@ class LoginView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("로그인"),
+        title: const Text("ログイン"),
         automaticallyImplyLeading: false,
       ),
       body: Padding(

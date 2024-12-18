@@ -26,6 +26,10 @@ class ProfileViewModel extends ChangeNotifier {
   Map<DateTime, List<String>> get runDates => _runDates;
   bool get isLoading => _isLoading;
 
+  bool _isFollowing = false;
+
+  bool get isFollowing => _isFollowing;
+
   ProfileViewModel(this._userService, this._userRecordService);
 
   Future<void> loadUserProfile(String userId) async {
@@ -78,5 +82,25 @@ class ProfileViewModel extends ChangeNotifier {
       _isLoadingRecords = false;
       notifyListeners();
     }
+  }
+
+  Future<void> checkFollowingStatus(
+      String currentUserId, String profileUserId) async {
+    _isFollowing =
+        await _userService.isFollowingUser(currentUserId, profileUserId);
+    notifyListeners();
+  }
+
+  Future<void> toggleFollowStatus(
+      String currentUserId, String profileUserId) async {
+    if (_isFollowing) {
+      await _userService.unfollowUser(currentUserId, profileUserId);
+    } else {
+      await _userService.followUser(currentUserId, profileUserId);
+    }
+
+    _isFollowing = !_isFollowing;
+    _followersCount += _isFollowing ? 1 : -1;
+    notifyListeners();
   }
 }
