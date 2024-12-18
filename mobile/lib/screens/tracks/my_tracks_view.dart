@@ -82,6 +82,7 @@ class _MyTracksViewState extends State<MyTracksView> {
                                       return TrackListTile(
                                         trackId: track.id,
                                         name: track.name,
+                                        description: track.description,
                                         distance: track.distance,
                                         region: track.region ?? "",
                                         createdAt:

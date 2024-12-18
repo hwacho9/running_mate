@@ -8,6 +8,7 @@ import 'package:running_mate/utils/format.dart';
 class TrackSpecificView extends StatelessWidget {
   final String trackId;
   final String name;
+  final String description;
   final double distance;
   final String region;
   final DateTime createdAt;
@@ -17,6 +18,7 @@ class TrackSpecificView extends StatelessWidget {
     super.key,
     required this.trackId,
     required this.name,
+    required this.description,
     required this.distance,
     required this.region,
     required this.createdAt,
@@ -58,6 +60,11 @@ class TrackSpecificView extends StatelessWidget {
                   "Distance: ${formatDistance(distance)}",
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "description: $description",
+                  style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
                 Text(

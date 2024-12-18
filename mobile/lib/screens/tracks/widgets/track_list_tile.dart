@@ -6,6 +6,7 @@ import 'package:running_mate/screens/tracks/track_specific_view.dart';
 class TrackListTile extends StatelessWidget {
   final String trackId; // 트랙 고유 ID 추가
   final String name;
+  final String description;
   final double distance;
   final String region;
   final DateTime createdAt;
@@ -15,6 +16,7 @@ class TrackListTile extends StatelessWidget {
     super.key,
     required this.trackId, // 트랙 ID 추가
     required this.name,
+    required this.description,
     required this.distance,
     required this.region,
     required this.createdAt,
@@ -32,6 +34,7 @@ class TrackListTile extends StatelessWidget {
             builder: (context) => TrackSpecificView(
               trackId: trackId,
               name: name,
+              description: description,
               distance: distance,
               region: region,
               createdAt: createdAt,
