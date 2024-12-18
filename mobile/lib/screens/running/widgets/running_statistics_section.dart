@@ -27,7 +27,7 @@ class RunningStatisticsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildStatistic("距離", "${formatDistance(totalDistance)} km"),
+            _buildStatistic("距離", "${formatDistance(totalDistance)}"),
             _buildStatistic("時間", _formatDuration(duration)),
             _buildStatistic("平均速度", "${averageSpeed.toStringAsFixed(1)} km/h"),
           ],

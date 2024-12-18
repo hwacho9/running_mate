@@ -35,8 +35,9 @@ class RunningResultView extends StatelessWidget {
     final runningViewModel = context.watch<RunningViewModel>();
     final duration = endTime.difference(startTime) - pauseTime;
     final averageSpeed = totalDistance > 0
-        ? (totalDistance / (duration.inSeconds / 3600))
+        ? ((totalDistance / 1000) / (duration.inSeconds / 3600)) // m -> km 변환
         : 0.0; // 平均速度 (km/h)
+// 平均速度 (km/h)
 
     return Scaffold(
       appBar: AppBar(
