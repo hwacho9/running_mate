@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:running_mate/utils/format.dart';
 import 'package:running_mate/widgets/stats_card.dart';
 
 class StatGrid extends StatelessWidget {
@@ -32,7 +33,7 @@ class StatGrid extends StatelessWidget {
       {
         "icon": Icons.directions_run,
         "title": "総距離",
-        "value": "${totalDistance.toStringAsFixed(2)} km"
+        "value": formatDistance(totalDistance)
       },
     ];
 
