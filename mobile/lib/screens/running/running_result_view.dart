@@ -80,6 +80,16 @@ class RunningResultView extends StatelessWidget {
                   );
                   return;
                 }
+                final firstPoint = coordinates.first;
+                final region = await RegionHelper.getRegionFromCoordinates(
+                  firstPoint['lat'],
+                  firstPoint['lng'],
+                );
+
+                final translatedRegion =
+                    CheckLanguageUtil.isKoreanRegion(region)
+                        ? convertKoreanToJapanese(region)
+                        : region;
 
                 try {
                   await viewModel.saveUserRecord(
@@ -90,6 +100,7 @@ class RunningResultView extends StatelessWidget {
                     pauseTime: pauseTime,
                     distance: totalDistance,
                     coordinates: coordinates,
+                    region: translatedRegion,
                   );
                   runningViewModel.stopTracking(context); // 追跡終了
                   Navigator.pushReplacementNamed(context, '/');

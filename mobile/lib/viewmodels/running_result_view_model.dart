@@ -20,6 +20,7 @@ class RunningResultViewModel extends ChangeNotifier {
     required List<Map<String, dynamic>> coordinates,
     required Duration pauseTime, // 추가된 pauseTime 파라미터
     String? trackId,
+    required String region,
   }) async {
     try {
       _isSaving = true;
@@ -36,6 +37,7 @@ class RunningResultViewModel extends ChangeNotifier {
         distance: distance,
         coordinates: coordinates,
         totalPauseTime: pauseTime, // 휴식 시간 전달
+        region: region,
       );
     } catch (e) {
       print('Failed to save user record: $e');
@@ -83,6 +85,7 @@ class RunningResultViewModel extends ChangeNotifier {
         distance: distance,
         coordinates: coordinates,
         totalPauseTime: pauseTime, // 휴식 시간 전달
+        region: region,
       );
 
       await _trackService.addToUserTracks(userId, trackId);

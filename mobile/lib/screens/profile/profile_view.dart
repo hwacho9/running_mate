@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/profile/widgets/profile_run_calendar.dart';
 import 'package:running_mate/screens/profile/widgets/profile_stat_grid.dart';
+import 'package:running_mate/screens/profile/widgets/record_list_tile.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:running_mate/viewmodels/profile_view_model.dart';
 
@@ -27,6 +29,7 @@ class _ProfileViewState extends State<ProfileView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final profileViewModel = context.read<ProfileViewModel>();
       profileViewModel.loadUserProfile(widget.userId);
+      profileViewModel.loadUserRecords(widget.userId);
     });
   }
 
@@ -66,13 +69,12 @@ class _ProfileViewState extends State<ProfileView>
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        nickname!, // Replace with actual username
+                        nickname ?? 'User',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -104,37 +106,80 @@ class _ProfileViewState extends State<ProfileView>
             ],
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // Tab 1: Stats & Calendar
-                  profileViewModel.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              if (userStats != null)
-                                ProfileStatGrid(
-                                  totalRunCount: userStats.totalRunCount,
-                                  totalRunDays: userStats.totalRunDays,
-                                  currentStreak: userStats.currentStreak,
-                                  totalDistance: userStats.totalDistance,
-                                  longestStreak: userStats.longestStreak,
-                                  totalTime: userStats.totalTime,
-                                  lastRunDate: userStats.lastRunDate!.toDate(),
-                                ),
-                              const SizedBox(height: 5),
-                              ProfileRunCalendar(
-                                  runDates: profileViewModel.runDates),
-                            ],
-                          ),
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Tab 1: Stats & Calendar
+                profileViewModel.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            (userStats != null)
+                                ? ProfileStatGrid(
+                                    totalRunCount: userStats.totalRunCount,
+                                    totalRunDays: userStats.totalRunDays,
+                                    currentStreak: userStats.currentStreak,
+                                    totalDistance: userStats.totalDistance,
+                                    longestStreak: userStats.longestStreak,
+                                    totalTime: userStats.totalTime,
+                                    lastRunDate:
+                                        userStats.lastRunDate!.toDate(),
+                                  )
+                                : ProfileStatGrid(
+                                    totalRunCount: 0,
+                                    totalRunDays: 0,
+                                    longestStreak: 0,
+                                    currentStreak: 0,
+                                    totalDistance: 0,
+                                    totalTime: 0,
+                                    lastRunDate: DateTime.now(),
+                                  ),
+                            const SizedBox(height: 16),
+                            ProfileRunCalendar(
+                              runDates: profileViewModel.runDates,
+                            ),
+                          ],
                         ),
-                  // Tab 2: Records
-                  const Center(child: Text("Record list here")),
-                ],
-              ),
+                      ),
+                // Tab 2: Records
+                profileViewModel.isLoadingRecords
+                    ? const Center(child: CircularProgressIndicator())
+                    : profileViewModel.userRecords.isEmpty
+                        ? const Center(
+                            child: Text(
+                              '記録なし',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: profileViewModel.userRecords.length,
+                            itemBuilder: (context, index) {
+                              final record =
+                                  profileViewModel.userRecords[index];
+                              final startTime =
+                                  record['start_time']?.toDate() ??
+                                      DateTime.now();
+                              final formattedStartTime =
+                                  DateFormat('yyyy-MM-dd HH:mm')
+                                      .format(startTime);
+
+                              return RecordListTile(
+                                trackId: record['track_id'] ?? 'Unknown',
+                                name: formattedStartTime,
+                                distance: record['distance'] ?? 0.0,
+                                region: record['region'] ?? 'Unknown',
+                                createdAt: startTime,
+                                routePoints: (record['coordinates']
+                                        as List<dynamic>)
+                                    .map((coord) =>
+                                        Map<String, dynamic>.from(coord))
+                                    .toList(), // Ensure proper type conversion
+                              );
+                            },
+                          )
+              ],
             ),
           ),
         ],

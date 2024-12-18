@@ -78,6 +78,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ProfileViewModel(
             UserService(),
+            UserRecordService(),
           ),
         ),
       ],
