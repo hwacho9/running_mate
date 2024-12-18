@@ -137,7 +137,7 @@ class _RunViewState extends State<RunView> {
             options: MapOptions(
               initialCenter:
                   viewModel.currentPosition ?? const LatLng(34.70, 135.2),
-              initialZoom: 18.0,
+              initialZoom: 15.0,
               onMapReady: () {
                 setState(() {
                   _mapInitialized = true;

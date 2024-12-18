@@ -5,17 +5,17 @@ class UserStatsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // 사용자 통계 데이터 가져오기
-  Future<UserStats> getUserStats(String userId) async {
+  Stream<UserStats> getUserStats(String userId) {
     try {
       final docRef = _firestore.collection('UserStats').doc(userId);
-      final docSnapshot = await docRef.get();
+      return docRef.snapshots().map((docSnapshot) {
+        if (!docSnapshot.exists) {
+          throw Exception("User stats not found");
+        }
 
-      if (!docSnapshot.exists) {
-        throw Exception("User stats not found");
-      }
-
-      final data = docSnapshot.data() as Map<String, dynamic>;
-      return UserStats.fromFirestore(data);
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        return UserStats.fromFirestore(data);
+      });
     } catch (e) {
       print("Error fetching user stats: $e");
       rethrow;

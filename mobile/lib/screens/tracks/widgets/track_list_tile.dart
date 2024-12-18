@@ -49,7 +49,17 @@ class TrackListTile extends StatelessWidget {
       child: SizedBox(
         height: 140,
         child: Container(
-          color: Colors.white,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10), // 모서리 곡면 추가
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 2,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
