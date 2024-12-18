@@ -7,7 +7,7 @@ class SharedRoutesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shared Routes'),
+        title: const Text('SNS'),
         automaticallyImplyLeading: false,
       ),
       body: Column(
