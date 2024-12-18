@@ -31,6 +31,7 @@ class Trackservice {
       'created_at': FieldValue.serverTimestamp(),
       'coordinates': coordList,
       'participants_count': 1, // 기본값 1로 설정
+      'is_public': false, // 기본값 false로 설정
     });
 
     final trackId = docRef.id; // Retrieve the document ID
@@ -73,6 +74,26 @@ class Trackservice {
       print('Track added successfully for user: $userId');
     } catch (e) {
       print('Failed to add track: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateTrackPublicStatus(String trackId, bool isPublic) async {
+    try {
+      await _firestore.collection('Tracks').doc(trackId).update({
+        'is_public': isPublic,
+      });
+    } catch (e) {
+      print("Failed to update track public status: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteTrack(String trackId) async {
+    try {
+      await _firestore.collection('Tracks').doc(trackId).delete();
+    } catch (e) {
+      print("Failed to delete track: $e");
       rethrow;
     }
   }

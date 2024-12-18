@@ -17,6 +17,7 @@ import 'package:running_mate/viewmodels/my_tracks_view_model.dart';
 import 'package:running_mate/viewmodels/run_view_model.dart';
 import 'package:running_mate/viewmodels/running_result_view_model.dart';
 import 'package:running_mate/viewmodels/running_view_model.dart';
+import 'package:running_mate/viewmodels/track_edit_view_model.dart';
 import 'viewmodels/auth_view_model.dart'; // AuthViewModel import
 
 Future<void> main() async {
@@ -65,6 +66,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => HomeViewModel(
             UserStatsService(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TrackEditViewModel(
+            Trackservice(),
           ),
         ),
       ],

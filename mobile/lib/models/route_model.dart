@@ -10,6 +10,7 @@ class RouteModel {
   final DateTime? createdAt;
   final String? region;
   final double participantsCcount;
+  final bool isPublic;
 
   RouteModel({
     required this.id,
@@ -20,6 +21,7 @@ class RouteModel {
     this.createdAt,
     this.region,
     this.participantsCcount = 1,
+    this.isPublic = false,
   });
 
   factory RouteModel.fromFirestore(String id, Map<String, dynamic> data) {
@@ -37,6 +39,7 @@ class RouteModel {
       createdAt: (data['created_at'] as Timestamp?)?.toDate(),
       region: data['region'] as String?,
       participantsCcount: (data['participants_count'] as num).toDouble(),
+      isPublic: data['is_public'] as bool,
     );
   }
 }
