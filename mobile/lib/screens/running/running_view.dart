@@ -21,6 +21,7 @@ class RunningView extends StatefulWidget {
 class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
   late final MapController _mapController;
   bool _keepCentered = true;
+  bool _mapInitialized = false;
 
   @override
   void initState() {
@@ -82,8 +83,8 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
       );
     }
 
-    // Update map position if `_keepCentered` is true
-    if (_keepCentered && viewModel.currentPosition != null) {
+    // Update map position only if the map is initialized
+    if (_keepCentered && _mapInitialized && viewModel.currentPosition != null) {
       _mapController.move(viewModel.currentPosition!, 18.0);
     }
 
@@ -97,7 +98,10 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
           title: const Text('Running Tracker'),
           actions: [
             IconButton(
-              icon: Icon(_keepCentered ? Icons.gps_fixed : Icons.gps_not_fixed),
+              icon: Icon(
+                _keepCentered ? Icons.gps_fixed : Icons.gps_not_fixed,
+                color: _keepCentered ? Colors.blue : Colors.grey,
+              ),
               onPressed: _toggleCentering,
             ),
           ],
@@ -110,6 +114,11 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
                 initialCenter:
                     viewModel.currentPosition ?? const LatLng(34.70, 135.2),
                 initialZoom: 18.0,
+                onMapReady: () {
+                  setState(() {
+                    _mapInitialized = true;
+                  });
+                },
                 onPositionChanged: (camera, hasGesture) {
                   if (hasGesture && _keepCentered) {
                     setState(() {

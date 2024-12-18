@@ -25,6 +25,8 @@ class _RunViewState extends State<RunView> {
   double _heading = 0.0;
   bool _isDrawingMode = false; // 그리기 모드 여부
   List<LatLng> _markers = []; // 마커 리스트
+  bool _keepCentered = true;
+  bool _mapInitialized = false;
 
   List<LatLng> _getPolylinePoints() {
     List<LatLng> points = [];
@@ -67,6 +69,12 @@ class _RunViewState extends State<RunView> {
     });
   }
 
+  void _toggleCentering() {
+    setState(() {
+      _keepCentered = !_keepCentered;
+    });
+  }
+
   @override
   void dispose() {
     _positionSubscription?.cancel();
@@ -77,10 +85,22 @@ class _RunViewState extends State<RunView> {
   Widget build(BuildContext context) {
     final viewModel = context.watch<RunViewModel>();
 
+    // Update map position only if the map is initialized
+    if (_keepCentered && _mapInitialized && viewModel.currentPosition != null) {
+      _mapController.move(viewModel.currentPosition!, 18.0);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ランニング'),
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(
+            _keepCentered ? Icons.gps_fixed : Icons.gps_not_fixed,
+            color: _keepCentered ? Colors.blue : Colors.grey,
+          ),
+          onPressed: _toggleCentering,
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -115,8 +135,21 @@ class _RunViewState extends State<RunView> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: viewModel.currentPosition ?? LatLng(34.70, 135.2),
+              initialCenter:
+                  viewModel.currentPosition ?? const LatLng(34.70, 135.2),
               initialZoom: 18.0,
+              onMapReady: () {
+                setState(() {
+                  _mapInitialized = true;
+                });
+              },
+              onPositionChanged: (camera, hasGesture) {
+                if (hasGesture && _keepCentered) {
+                  setState(() {
+                    _keepCentered = false;
+                  });
+                }
+              },
               onTap: _isDrawingMode
                   ? (tapPosition, latLng) {
                       setState(() {
