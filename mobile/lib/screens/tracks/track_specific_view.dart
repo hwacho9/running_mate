@@ -37,7 +37,7 @@ class TrackSpecificView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "Distance: ${distance.toStringAsFixed(2)} km",
+              "Distance: ${formatDistance(distance)}",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),

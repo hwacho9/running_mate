@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Provider import
@@ -10,6 +11,8 @@ import 'package:running_mate/screens/running/run_view.dart';
 import 'package:running_mate/screens/running/running_result_view.dart';
 import 'package:running_mate/services/track_service.dart';
 import 'package:running_mate/services/user_record_service.dart';
+import 'package:running_mate/services/user_stats_service.dart';
+import 'package:running_mate/viewmodels/home_view_model.dart';
 import 'package:running_mate/viewmodels/my_tracks_view_model.dart';
 import 'package:running_mate/viewmodels/run_view_model.dart';
 import 'package:running_mate/viewmodels/running_result_view_model.dart';
@@ -57,6 +60,11 @@ class MyApp extends StatelessWidget {
             coordinates: const [],
             totalDistance: 0.0,
             pauseTime: const Duration(seconds: 0),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => HomeViewModel(
+            UserStatsService(),
           ),
         ),
       ],

@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:running_mate/provider/running_status_provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/home/widgets/MiniMap.dart';
+import 'package:running_mate/screens/home/widgets/stat_grid.dart';
 import 'package:running_mate/screens/profile/profile_view.dart';
-import 'package:running_mate/viewmodels/running_view_model.dart';
+import 'package:running_mate/viewmodels/home_view_model.dart';
 import '../../viewmodels/auth_view_model.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
+
+  @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authViewModel = context.read<AuthViewModel>();
+      final homeViewModel = context.read<HomeViewModel>();
+      homeViewModel.loadUserStats(authViewModel.user!.uid);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final authViewModel = context.watch<AuthViewModel>();
-    final viewmodel = context.watch<RunningViewModel>();
-    final status = context.watch<RunningStatusProvider>();
-
-    print(viewmodel.coordinates);
-    print(viewmodel.totalPauseTime);
-    print(status.isRunning);
-    print(status.isPaused);
+    final homeViewModel = context.watch<HomeViewModel>();
 
     if (authViewModel.user == null) {
       return const Center(child: CircularProgressIndicator());
@@ -59,30 +70,23 @@ class HomeView extends StatelessWidget {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            const Text(
-              "현재 사용자 정보:",
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "UID: ${authViewModel.user?.uid ?? "알 수 없음"}",
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            Text(
-              "Email: ${authViewModel.user?.email ?? "알 수 없음"}",
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
+            homeViewModel.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : homeViewModel.userStats != null
+                    ? StatGrid(
+                        totalRunCount: homeViewModel.userStats!.totalRunCount,
+                        totalRunDays: homeViewModel.userStats!.totalRunDays,
+                        currentStreak: homeViewModel.userStats!.currentStreak,
+                        totalDistance: homeViewModel.userStats!.totalDistance,
+                      )
+                    : const Center(child: Text("スタッツがありません。")),
+            const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 16),
             const Text("今日も走りましょう!",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            const MiniMap(), // MiniMap 컴포넌트 사용
-            const SizedBox(height: 32),
-            const Text(
-              "앱 기능",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            const MiniMap(),
           ],
         ),
       ),
