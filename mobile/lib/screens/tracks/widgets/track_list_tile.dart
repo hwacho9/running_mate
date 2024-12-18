@@ -11,6 +11,7 @@ class TrackListTile extends StatelessWidget {
   final String region;
   final DateTime createdAt;
   final List<Map<String, dynamic>> routePoints;
+  final double participants;
 
   const TrackListTile({
     super.key,
@@ -21,6 +22,7 @@ class TrackListTile extends StatelessWidget {
     required this.region,
     required this.createdAt,
     required this.routePoints,
+    this.participants = 1,
   });
 
   @override
@@ -39,6 +41,7 @@ class TrackListTile extends StatelessWidget {
               region: region,
               createdAt: createdAt,
               routePoints: routePoints,
+              participants: participants,
             ),
           ),
         );

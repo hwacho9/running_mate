@@ -13,17 +13,18 @@ class TrackSpecificView extends StatelessWidget {
   final String region;
   final DateTime createdAt;
   final List<Map<String, dynamic>> routePoints;
+  final double? participants;
 
-  const TrackSpecificView({
-    super.key,
-    required this.trackId,
-    required this.name,
-    required this.description,
-    required this.distance,
-    required this.region,
-    required this.createdAt,
-    required this.routePoints,
-  });
+  const TrackSpecificView(
+      {super.key,
+      required this.trackId,
+      required this.name,
+      required this.description,
+      required this.distance,
+      required this.region,
+      required this.createdAt,
+      required this.routePoints,
+      this.participants});
 
   @override
   Widget build(BuildContext context) {
@@ -56,12 +57,40 @@ class TrackSpecificView extends StatelessWidget {
                   initialZoom: 14,
                 ),
                 const SizedBox(height: 16),
+                // 참가자 표시
+                Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.orangeAccent,
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8), // 아이콘과 숫자 간격
+                    Text(
+                      "${participants?.toStringAsFixed(0) ?? 0}",
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                const SizedBox(height: 16),
                 Text(
                   "Distance: ${formatDistance(distance)}",
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
+
                 Text(
                   "description: $description",
                   style: const TextStyle(fontSize: 16),

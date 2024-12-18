@@ -7,8 +7,13 @@ class SharedRoutesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Shared Routes')),
-      body: const Center(
-        child: Text('List of shared routes will be displayed here.'),
+      body: Column(
+        children: [
+          const Text("내 주변 트랙, 현별 트랙, 인기 트랙"),
+          const Center(
+            child: Text('List of shared routes will be displayed here.'),
+          ),
+        ],
       ),
     );
   }

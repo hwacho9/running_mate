@@ -49,9 +49,23 @@ class Trackservice {
       // 명시적으로 현재 시간을 가져옵니다.
       final Timestamp currentTime = Timestamp.now();
 
+      // Track 도큐먼트에서 creator_id 조회
+      final trackDoc = await firestore.collection('Tracks').doc(trackId).get();
+      if (!trackDoc.exists) {
+        throw Exception("Track does not exist.");
+      }
+
+      final trackData = trackDoc.data()!;
+      final creatorId = trackData['creator_id'] as String;
+
+      // 내 루트인지 다른 사람의 루트인지 확인
+      final isMyTrack = creatorId == userId;
+
+      // 추가할 데이터 구성
       final userTrackData = {
         'track_id': trackId,
         'joined_at': currentTime,
+        'is_my_track': isMyTrack, // 내 루트 여부 추가
       };
 
       // Check if the document already exists

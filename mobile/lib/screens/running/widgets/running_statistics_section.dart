@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:running_mate/utils/format.dart';
 
 class RunningStatisticsSection extends StatelessWidget {
   final double totalDistance;
@@ -26,7 +27,7 @@ class RunningStatisticsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildStatistic("距離", "${totalDistance.toStringAsFixed(2)} km"),
+            _buildStatistic("距離", "${formatDistance(totalDistance)} km"),
             _buildStatistic("時間", _formatDuration(duration)),
             _buildStatistic("平均速度", "${averageSpeed.toStringAsFixed(1)} km/h"),
           ],

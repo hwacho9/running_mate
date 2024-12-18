@@ -88,6 +88,7 @@ class _MyTracksViewState extends State<MyTracksView> {
                                         createdAt:
                                             track.createdAt ?? DateTime.now(),
                                         routePoints: routePoints,
+                                        participants: track.participantsCcount,
                                       );
                                     },
                                     childCount: viewModel.tracks.length,
