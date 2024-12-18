@@ -90,7 +90,10 @@ class TrackSpecificView extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const RunningView(),
+                      builder: (context) => RunningView(
+                        routePoints: routePoints,
+                        trackId: trackId,
+                      ),
                     ),
                   );
                 },

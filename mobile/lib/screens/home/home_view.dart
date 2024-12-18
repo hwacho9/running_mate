@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/provider/running_status_provider.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/home/widgets/MiniMap.dart';
 import 'package:running_mate/screens/home/widgets/stat_grid.dart';
@@ -29,10 +30,14 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final authViewModel = context.watch<AuthViewModel>();
     final homeViewModel = context.watch<HomeViewModel>();
+    final runningStatus = context.watch<RunningStatusProvider>();
 
     if (authViewModel.user == null) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    print("isRunning :  ${runningStatus.isRunning}");
+    print("isPaused : ${runningStatus.isPaused}");
 
     return Scaffold(
       appBar: AppBar(

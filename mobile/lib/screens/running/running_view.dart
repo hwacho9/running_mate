@@ -9,7 +9,10 @@ import 'package:running_mate/widgets/Buttons/CircleFloatingActionButton.dart';
 import 'package:running_mate/provider/running_status_provider.dart';
 
 class RunningView extends StatefulWidget {
-  const RunningView({super.key});
+  final String? trackId; // 트랙 ID (선택 사항)
+  final List<Map<String, dynamic>>? routePoints; // 전달받은 경로 포인트
+
+  const RunningView({super.key, this.trackId, this.routePoints});
 
   @override
   State<RunningView> createState() => _RunningViewState();
@@ -24,6 +27,15 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
       final viewModel = context.read<RunningViewModel>();
       final statusProvider = context.read<RunningStatusProvider>();
 
+      print(widget.trackId);
+      print(widget.routePoints);
+      if (widget.routePoints != null) {
+        // 기존 트랙 로드
+        viewModel.loadRoutePoints(widget.routePoints!);
+      } else {
+        // 새 트래킹 시작
+        viewModel.startTracking(context);
+      }
       // 런닝 상태를 동기화
       if (statusProvider.isPaused) {
         viewModel.pauseTracking(context);
@@ -87,6 +99,16 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.example.app',
                 ),
+                if (viewModel.routePoints.isNotEmpty)
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: viewModel.routePoints,
+                        strokeWidth: 4.0,
+                        color: Colors.red,
+                      ),
+                    ],
+                  ),
                 PolylineLayer(
                   polylines: [
                     Polyline(
@@ -95,7 +117,7 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
                               coord['lat'] as double, coord['lng'] as double))
                           .toList(),
                       strokeWidth: 4.0,
-                      color: Colors.red,
+                      color: Colors.blue,
                     ),
                   ],
                 ),
@@ -151,6 +173,7 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
               MaterialPageRoute(
                 builder: (context) => RunningResultView(
                   startTime: viewModel.startTime!,
+                  trackId: widget.trackId,
                   endTime: endTime,
                   coordinates: viewModel.coordinates,
                   totalDistance: viewModel.totalDistance,

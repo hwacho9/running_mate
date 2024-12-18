@@ -19,6 +19,7 @@ class RunningResultViewModel extends ChangeNotifier {
     required double distance,
     required List<Map<String, dynamic>> coordinates,
     required Duration pauseTime, // 추가된 pauseTime 파라미터
+    String? trackId,
   }) async {
     try {
       _isSaving = true;
@@ -28,6 +29,7 @@ class RunningResultViewModel extends ChangeNotifier {
 
       await _userRecordService.saveUserRecord(
         userId: userId,
+        trackId: trackId,
         startTime: startTime,
         endTime: endTime,
         totalTime: totalTime,

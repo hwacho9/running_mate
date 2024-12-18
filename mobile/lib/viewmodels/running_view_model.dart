@@ -15,11 +15,13 @@ class RunningViewModel extends ChangeNotifier {
   DateTime? _startTime;
   StreamSubscription<Position>? _positionSubscription; // 스트림 구독 관리
   Timer? _coordinateTimer; // 타이머 관리
+  List<LatLng> _routePoints = [];
 
   DateTime? _pauseStartTime; // 일시정지 시작 시간
   Duration _totalPauseTime = Duration.zero; // 총 일시정지 시간
 
   List<Map<String, dynamic>> get coordinates => _coordinates;
+  List<LatLng> get routePoints => _routePoints;
   LatLng? get currentPosition => _currentPosition;
   double get totalDistance => _totalDistance;
   double get heading => _heading;
@@ -43,6 +45,11 @@ class RunningViewModel extends ChangeNotifier {
     if (permission == LocationPermission.deniedForever) {
       throw Exception('위치 권한이 영구적으로 거부되었습니다.');
     }
+  }
+
+  void loadRoutePoints(List<Map<String, dynamic>> points) {
+    _routePoints = points.map((p) => LatLng(p['lat'], p['lng'])).toList();
+    notifyListeners();
   }
 
   Future<void> startTracking(BuildContext context) async {
@@ -186,6 +193,7 @@ class RunningViewModel extends ChangeNotifier {
     _startTime = null;
     _pauseStartTime = null;
     _totalPauseTime = Duration.zero;
+    _routePoints.clear();
 
     // 런닝 상태 종료 및 상태 초기화
     _coordinateTimer = null;

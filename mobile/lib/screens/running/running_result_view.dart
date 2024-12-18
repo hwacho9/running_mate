@@ -17,6 +17,7 @@ class RunningResultView extends StatelessWidget {
   final Duration pauseTime;
   final List<Map<String, dynamic>> coordinates;
   final double totalDistance;
+  final String? trackId;
 
   const RunningResultView({
     super.key,
@@ -25,6 +26,7 @@ class RunningResultView extends StatelessWidget {
     required this.pauseTime,
     required this.coordinates,
     required this.totalDistance,
+    this.trackId,
   });
 
   @override
@@ -81,6 +83,7 @@ class RunningResultView extends StatelessWidget {
                 try {
                   await viewModel.saveUserRecord(
                     userId: userId,
+                    trackId: trackId,
                     startTime: startTime,
                     endTime: endTime,
                     pauseTime: pauseTime,
@@ -134,6 +137,7 @@ class RunningResultView extends StatelessWidget {
                                   ? convertKoreanToJapanese(region)
                                   : region;
 
+                          runningViewModel.stopTracking(context); // 追跡終了
                           await viewModel.saveTrackWithUserRecord(
                             userId: userId,
                             startTime: startTime,
