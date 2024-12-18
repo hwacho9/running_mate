@@ -5,7 +5,7 @@ import 'package:running_mate/screens/home/home_view.dart';
 import 'package:running_mate/screens/running/run_view.dart';
 import 'package:running_mate/screens/running/running_view.dart';
 import 'package:running_mate/screens/tracks/my_tracks_view.dart';
-import 'package:running_mate/screens/SNS/shared_routes_page.dart';
+import 'package:running_mate/screens/SNS/sns_view.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 
 class NavPage extends StatefulWidget {
@@ -22,7 +22,7 @@ class _NavPageState extends State<NavPage> {
     HomeView(),
     const MyTracksView(),
     const RunView(),
-    const SharedRoutesPage(),
+    const SnsView(),
   ];
 
   void _onItemTapped(int index) {

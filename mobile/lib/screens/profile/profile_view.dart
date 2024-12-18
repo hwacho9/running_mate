@@ -19,20 +19,27 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String? _nickname;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final profileViewModel = context.read<ProfileViewModel>();
       final authViewModel = context.read<AuthViewModel>();
 
-      profileViewModel.loadUserProfile(widget.userId);
-      profileViewModel.loadUserRecords(widget.userId);
-      profileViewModel.checkFollowingStatus(
+      await profileViewModel.loadUserProfile(widget.userId);
+      await profileViewModel.loadUserRecords(widget.userId);
+      await profileViewModel.checkFollowingStatus(
           authViewModel.user?.uid ?? '', widget.userId);
+
+      // 닉네임 가져오기
+      final nickname = await profileViewModel.fetchNickname(widget.userId);
+      setState(() {
+        _nickname = nickname;
+      });
     });
   }
 
@@ -47,28 +54,27 @@ class _ProfileViewState extends State<ProfileView>
     final profileViewModel = context.watch<ProfileViewModel>();
     final authViewModel = context.watch<AuthViewModel>();
 
-    String? nickname = authViewModel.user?.nickname;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authViewModel.logout();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => LoginView()),
-              );
-            },
-          ),
+          if (authViewModel.user?.uid == widget.userId) // 조건부 렌더링
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await authViewModel.logout();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => LoginView()),
+                );
+              },
+            ),
         ],
       ),
       body: Column(
         children: [
           ProfileHeader(
-            nickname: nickname ?? 'User',
+            nickname: _nickname ?? 'User',
             followingCount: profileViewModel.followingCount,
             followersCount: profileViewModel.followersCount,
             currentUserId: authViewModel.user?.uid ?? '',

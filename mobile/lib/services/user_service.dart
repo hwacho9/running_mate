@@ -147,4 +147,19 @@ class UserService {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>> fetchUserDetails(String userId) async {
+    try {
+      final doc = await _firestore.collection('Users').doc(userId).get();
+
+      if (doc.exists) {
+        return doc.data()!;
+      } else {
+        throw Exception("User document not found.");
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
+      rethrow;
+    }
+  }
 }

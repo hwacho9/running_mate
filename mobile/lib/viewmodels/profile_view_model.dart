@@ -103,4 +103,14 @@ class ProfileViewModel extends ChangeNotifier {
     _followersCount += _isFollowing ? 1 : -1;
     notifyListeners();
   }
+
+  Future<String?> fetchNickname(String userId) async {
+    try {
+      final doc = await _userService.fetchUserDetails(userId);
+      return doc['nickname'] as String?;
+    } catch (e) {
+      print("Error fetching nickname: $e");
+      return null;
+    }
+  }
 }
