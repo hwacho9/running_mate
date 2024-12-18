@@ -79,6 +79,7 @@ class _ProfileViewState extends State<ProfileView>
             followersCount: profileViewModel.followersCount,
             currentUserId: authViewModel.user?.uid ?? '',
             profileUserId: widget.userId,
+            isFollowing: profileViewModel.isFollowing,
           ),
           const Divider(),
           TabBar(
