@@ -4,7 +4,6 @@ import 'package:provider/provider.dart'; // Provider import
 import 'package:running_mate/firebase_options.dart';
 import 'package:running_mate/nav_page.dart';
 import 'package:running_mate/provider/running_status_provider.dart';
-import 'package:running_mate/screens/SNS/sns_search_view.dart';
 import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/tracks/my_tracks_view.dart';
 import 'package:running_mate/screens/running/run_view.dart';
@@ -24,6 +23,7 @@ import 'package:running_mate/viewmodels/run_view_model.dart';
 import 'package:running_mate/viewmodels/running_result_view_model.dart';
 import 'package:running_mate/viewmodels/running_view_model.dart';
 import 'package:running_mate/viewmodels/sns_search_view_model.dart';
+import 'package:running_mate/viewmodels/sns_view_model.dart';
 import 'package:running_mate/viewmodels/track_edit_view_model.dart';
 import 'viewmodels/auth_view_model.dart'; // AuthViewModel import
 
@@ -93,6 +93,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => SnsSearchViewModel(SnsService()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SnsViewModel(SnsService()),
         ),
         ChangeNotifierProvider(
           create: (_) => FollowListViewModel(UserService()),

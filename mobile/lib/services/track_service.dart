@@ -113,7 +113,7 @@ class Trackservice {
   }
 
   /// 사용자의 트랙 목록 가져오기
-  Future<List<RouteModel>> fetchTracks() async {
+  Future<List<RouteModel>> fetchTracks(String userId) async {
     final user = _auth.currentUser;
     if (user == null) {
       throw Exception("User not logged in");
@@ -121,7 +121,7 @@ class Trackservice {
 
     // UserTracks에서 사용자의 트랙 ID 가져오기
     final userTracksDoc =
-        await _firestore.collection('UserTracks').doc(user.uid).get();
+        await _firestore.collection('UserTracks').doc(userId).get();
 
     if (!userTracksDoc.exists) {
       return [];

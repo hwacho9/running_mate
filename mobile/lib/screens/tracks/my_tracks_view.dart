@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/tracks/widgets/track_list_tile.dart';
@@ -11,17 +12,21 @@ class MyTracksView extends StatefulWidget {
 }
 
 class _MyTracksViewState extends State<MyTracksView> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MyTracksViewModel>().loadUserTracks();
+      context.read<MyTracksViewModel>().loadUserTracks(_auth.currentUser!.uid);
     });
   }
 
   Future<void> _refreshData() async {
     // 데이터 새로고침 함수
-    await context.read<MyTracksViewModel>().loadUserTracks();
+    await context
+        .read<MyTracksViewModel>()
+        .loadUserTracks(_auth.currentUser!.uid);
   }
 
   @override
@@ -40,7 +45,7 @@ class _MyTracksViewState extends State<MyTracksView> {
             indicatorWeight: 3,
             tabs: [
               Tab(text: "My Tracks"),
-              Tab(text: "BOOKMARKED"),
+              Tab(text: "Pariticipated"),
             ],
           ),
         ),

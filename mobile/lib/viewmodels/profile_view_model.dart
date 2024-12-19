@@ -75,7 +75,7 @@ class ProfileViewModel extends ChangeNotifier {
 
     try {
       _userRecords = await _userRecordService.fetchUserRecords(userId);
-      print("로드된 유저 기록: $_userRecords");
+      // print("로드된 유저 기록: $_userRecords");
     } catch (e) {
       print("유저 기록 로드 중 오류 발생: $e");
     } finally {

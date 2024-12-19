@@ -4,7 +4,9 @@ import 'package:running_mate/screens/auth/login_view.dart';
 import 'package:running_mate/screens/profile/widgets/profile_header.dart';
 import 'package:running_mate/screens/profile/widgets/profile_record_page.dart';
 import 'package:running_mate/screens/profile/widgets/profile_stats_page.dart';
+import 'package:running_mate/screens/tracks/widgets/track_list_tile.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
+import 'package:running_mate/viewmodels/my_tracks_view_model.dart';
 import 'package:running_mate/viewmodels/profile_view_model.dart';
 
 class ProfileView extends StatefulWidget {
@@ -24,16 +26,21 @@ class _ProfileViewState extends State<ProfileView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+
+    final authViewModel = context.read<AuthViewModel>();
+    final isMyProfile = authViewModel.user?.uid == widget.userId;
+
+    _tabController = TabController(length: isMyProfile ? 2 : 3, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final profileViewModel = context.read<ProfileViewModel>();
-      final authViewModel = context.read<AuthViewModel>();
-
       await profileViewModel.loadUserProfile(widget.userId);
       await profileViewModel.loadUserRecords(widget.userId);
-      await profileViewModel.checkFollowingStatus(
-          authViewModel.user?.uid ?? '', widget.userId);
+
+      if (!isMyProfile) {
+        final tracksViewModel = context.read<MyTracksViewModel>();
+        await tracksViewModel.loadUserTracks(widget.userId);
+      }
 
       // 닉네임 가져오기
       final nickname = await profileViewModel.fetchNickname(widget.userId);
@@ -53,12 +60,15 @@ class _ProfileViewState extends State<ProfileView>
   Widget build(BuildContext context) {
     final profileViewModel = context.watch<ProfileViewModel>();
     final authViewModel = context.watch<AuthViewModel>();
+    final tracksViewModel = context.watch<MyTracksViewModel>();
+
+    final isMyProfile = authViewModel.user?.uid == widget.userId;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
-          if (authViewModel.user?.uid == widget.userId) // 조건부 렌더링
+          if (isMyProfile)
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
@@ -86,10 +96,16 @@ class _ProfileViewState extends State<ProfileView>
             controller: _tabController,
             indicatorColor: Colors.red,
             labelColor: Colors.black,
-            tabs: const [
-              Tab(text: "Stats"),
-              Tab(text: "Records"),
-            ],
+            tabs: isMyProfile
+                ? const [
+                    Tab(text: "Stats"),
+                    Tab(text: "Records"),
+                  ]
+                : const [
+                    Tab(text: "Stats"),
+                    Tab(text: "Records"),
+                    Tab(text: "Tracks"),
+                  ],
           ),
           Expanded(
             child: Padding(
@@ -106,6 +122,55 @@ class _ProfileViewState extends State<ProfileView>
                     isLoadingRecords: profileViewModel.isLoadingRecords,
                     userRecords: profileViewModel.userRecords,
                   ),
+                  if (!isMyProfile)
+                    tracksViewModel.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : CustomScrollView(
+                            slivers: [
+                              tracksViewModel.tracks.isEmpty
+                                  ? const SliverFillRemaining(
+                                      hasScrollBody: false,
+                                      child: Center(
+                                        child: Text(
+                                          'No routes saved yet.',
+                                          style: TextStyle(
+                                              fontSize: 16, color: Colors.grey),
+                                        ),
+                                      ),
+                                    )
+                                  : SliverList(
+                                      delegate: SliverChildBuilderDelegate(
+                                        (context, index) {
+                                          final track =
+                                              tracksViewModel.tracks[index];
+
+                                          // coordinates (List<LatLng>)를 List<Map<String, dynamic>>로 변환
+                                          final routePoints = track.coordinates
+                                              .map((latLng) => {
+                                                    'lat': latLng.latitude,
+                                                    'lng': latLng.longitude
+                                                  })
+                                              .toList();
+
+                                          return TrackListTile(
+                                            trackId: track.id,
+                                            name: track.name,
+                                            description: track.description,
+                                            distance: track.distance,
+                                            region: track.region ?? "",
+                                            createdAt: track.createdAt ??
+                                                DateTime.now(),
+                                            routePoints: routePoints,
+                                            participants:
+                                                track.participantsCcount,
+                                          );
+                                        },
+                                        childCount:
+                                            tracksViewModel.tracks.length,
+                                      ),
+                                    ),
+                            ],
+                          ),
                 ],
               ),
             ),

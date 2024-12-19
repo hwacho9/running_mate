@@ -14,12 +14,12 @@ class MyTracksViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   /// 사용자 트랙 불러오기
-  Future<void> loadUserTracks() async {
+  Future<void> loadUserTracks(String userId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      _tracks = await _trackService.fetchTracks();
+      _tracks = await _trackService.fetchTracks(userId);
       print(_tracks);
     } catch (e) {
       print("Error loading tracks: $e");

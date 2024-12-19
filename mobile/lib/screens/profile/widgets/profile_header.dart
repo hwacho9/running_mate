@@ -31,6 +31,8 @@ class ProfileHeader extends StatelessWidget {
     final bool isMyProfile = currentUserId == profileUserId;
     final profileViewModel = context.watch<ProfileViewModel>();
 
+    print(isFollowing);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
