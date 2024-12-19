@@ -162,4 +162,38 @@ class UserService {
       rethrow;
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchFollowing(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('Users')
+          .doc(userId)
+          .collection('Following')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        return {'id': doc.id, ...doc.data()};
+      }).toList();
+    } catch (e) {
+      print("Error fetching following list: $e");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFollowers(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('Users')
+          .doc(userId)
+          .collection('Followers')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        return {'id': doc.id, ...doc.data()};
+      }).toList();
+    } catch (e) {
+      print("Error fetching followers list: $e");
+      return [];
+    }
+  }
 }

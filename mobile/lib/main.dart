@@ -16,6 +16,7 @@ import 'package:running_mate/services/user_record_service.dart';
 import 'package:running_mate/services/user_service.dart';
 import 'package:running_mate/services/user_stats_service.dart';
 import 'package:running_mate/viewmodels/edit_profile_view_model.dart';
+import 'package:running_mate/viewmodels/follow_list_view_model.dart';
 import 'package:running_mate/viewmodels/home_view_model.dart';
 import 'package:running_mate/viewmodels/my_tracks_view_model.dart';
 import 'package:running_mate/viewmodels/profile_view_model.dart';
@@ -92,6 +93,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => SnsSearchViewModel(SnsService()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => FollowListViewModel(UserService()),
         ),
       ],
       child: MaterialApp(
