@@ -6,9 +6,7 @@ import 'package:running_mate/utils/check_language_util.dart';
 import 'package:running_mate/utils/get_region_util.dart';
 import 'package:running_mate/utils/regionConverter.dart';
 import 'package:running_mate/viewmodels/sns_view_model.dart';
-
-//TODO
-// Streambuilder로 현재 달리는 유저수, 달리는 친구들을 실시간으로 업데이트
+import 'package:running_mate/widgets/result_minimap.dart';
 
 class SnsView extends StatefulWidget {
   const SnsView({super.key});
@@ -19,13 +17,17 @@ class SnsView extends StatefulWidget {
 
 class _SnsViewState extends State<SnsView> {
   final userId = FirebaseAuth.instance.currentUser?.uid;
+  String currentRegion = '';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final currentRegion = await _getRegionFromLocation();
-      print(currentRegion);
+      print("current region  ${currentRegion}");
+      setState(() {
+        this.currentRegion = currentRegion ?? 'Unknown';
+      });
       context.read<SnsViewModel>().loadSNSData(currentRegion!, userId!);
     });
   }
@@ -79,6 +81,7 @@ class _SnsViewState extends State<SnsView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('SNS'),
+        automaticallyImplyLeading: false,
       ),
       body: snsViewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -96,16 +99,29 @@ class _SnsViewState extends State<SnsView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              '현재 달리는 중',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  currentRegion,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Text(
+                                  '現在の地域ランナー',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                             Text(
-                              '${snsViewModel.currentRegionRunners} 러너',
+                              '${snsViewModel.currentRegionRunners} 人',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
@@ -127,7 +143,7 @@ class _SnsViewState extends State<SnsView> {
                         ),
                         SizedBox(width: 8),
                         Text(
-                          '인기 트랙',
+                          '人気トラック',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -137,27 +153,71 @@ class _SnsViewState extends State<SnsView> {
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
-                      height: 150,
+                      height: 200,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: snsViewModel.popularTracks.length,
                         itemBuilder: (context, index) {
                           final track = snsViewModel.popularTracks[index];
+                          print(track);
                           return Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    track['name'] ?? 'Unknown',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                  Text(
-                                    '${track['participants_count'] ?? 0} 명 참여',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
+                            child: SizedBox(
+                              width: 200,
+                              height: 100, // Total card height
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(
+                                          8.0), // Optional, for aesthetics
+                                      child: SizedBox(
+                                        height:
+                                            100, // Explicit height for the map
+                                        width: double
+                                            .infinity, // Match the card's width
+                                        child: ResultMinimap(
+                                          routePoints: (track['coordinates']
+                                                      as List<dynamic>?)
+                                                  ?.map((point) => {
+                                                        'lat': point['lat']
+                                                            as double,
+                                                        'lng': point['lng']
+                                                            as double,
+                                                      })
+                                                  .toList() ??
+                                              [], // Fallback to an empty list if null
+                                          initialZoom: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      track['name'] ?? 'Unknown',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.people,
+                                          size: 16,
+                                          color: Colors.red,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${track['participants_count'] ?? 0}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
