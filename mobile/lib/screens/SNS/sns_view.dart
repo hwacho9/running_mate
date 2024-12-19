@@ -119,12 +119,21 @@ class _SnsViewState extends State<SnsView> {
                     const SizedBox(height: 20),
 
                     // 인기 트랙
-                    const Text(
-                      '인기 트랙',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.emoji_events,
+                          color: Colors.orange,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '인기 트랙',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -158,12 +167,21 @@ class _SnsViewState extends State<SnsView> {
                     const SizedBox(height: 20),
 
                     // 실시간 달리는 친구들
-                    const Text(
-                      '달리는 친구들',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.trending_up,
+                          color: Colors.orange,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '달리는 친구들',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     Column(
