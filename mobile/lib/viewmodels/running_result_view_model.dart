@@ -27,6 +27,7 @@ class RunningResultViewModel extends ChangeNotifier {
       notifyListeners();
 
       final totalTime = endTime.difference(startTime).inSeconds;
+      print('Coordinates in saveUserRecord: $coordinates'); // 디버깅 로그
 
       await _userRecordService.saveUserRecord(
         userId: userId,
@@ -63,7 +64,12 @@ class RunningResultViewModel extends ChangeNotifier {
       _isSaving = true;
       notifyListeners();
 
+      // coordinates 복사본 생성
+      final coordinatesCopy = List<Map<String, dynamic>>.from(coordinates);
+
       final totalTime = endTime.difference(startTime).inSeconds;
+      print(
+          'Coordinates in saveTrackWithUserRecord: $coordinatesCopy'); // 디버깅 로그
 
       final trackId = await _trackService.saveTrack(
         name: trackName,
@@ -71,10 +77,12 @@ class RunningResultViewModel extends ChangeNotifier {
         description: description,
         region: region,
         distance: distance,
-        coordinates: coordinates
+        coordinates: coordinatesCopy
             .map((coord) => LatLng(coord['lat'], coord['lng']))
             .toList(),
       );
+      print('Coordinates in 2: $coordinatesCopy'); // 디버깅 로그
+      print('Track ID: $trackId'); // 트랙 ID 확인
 
       await _userRecordService.saveUserRecord(
         userId: userId,
@@ -83,10 +91,12 @@ class RunningResultViewModel extends ChangeNotifier {
         endTime: endTime,
         totalTime: totalTime,
         distance: distance,
-        coordinates: coordinates,
+        coordinates: coordinatesCopy,
         totalPauseTime: pauseTime, // 휴식 시간 전달
         region: region,
       );
+
+      print('saveUserRecord completed successfully'); // 성공 여부 확인
 
       await _trackService.addToUserTracks(userId, trackId);
     } catch (e) {

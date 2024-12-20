@@ -91,6 +91,8 @@ class RunningResultView extends StatelessWidget {
                         ? convertKoreanToJapanese(region)
                         : region;
 
+                print('Coordinates in : $coordinates'); // 디버깅 로그
+
                 try {
                   await viewModel.saveUserRecord(
                     userId: userId,

@@ -5,6 +5,8 @@ import 'package:running_mate/screens/home/widgets/MiniMap.dart';
 import 'package:running_mate/screens/home/widgets/stat_grid.dart';
 import 'package:running_mate/screens/profile/profile_view.dart';
 import 'package:running_mate/viewmodels/home_view_model.dart';
+import 'package:running_mate/viewmodels/running_result_view_model.dart';
+import 'package:running_mate/viewmodels/running_view_model.dart';
 import '../../viewmodels/auth_view_model.dart';
 
 class HomeView extends StatefulWidget {
@@ -30,6 +32,9 @@ class _HomeViewState extends State<HomeView> {
     final authViewModel = context.watch<AuthViewModel>();
     final homeViewModel = context.watch<HomeViewModel>();
     final runningStatus = context.watch<RunningStatusProvider>();
+    final t = context.watch<RunningViewModel>();
+
+    print(t.coordinates);
 
     if (authViewModel.user == null) {
       return const Center(child: CircularProgressIndicator());
