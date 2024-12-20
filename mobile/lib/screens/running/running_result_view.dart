@@ -149,7 +149,6 @@ class RunningResultView extends StatelessWidget {
                                   ? convertKoreanToJapanese(region)
                                   : region;
 
-                          runningViewModel.stopTracking(context); // 追跡終了
                           await viewModel.saveTrackWithUserRecord(
                             userId: userId,
                             startTime: startTime,
