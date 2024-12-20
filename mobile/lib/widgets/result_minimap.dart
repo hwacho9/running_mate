@@ -6,14 +6,31 @@ class ResultMinimap extends StatelessWidget {
   final List<Map<String, dynamic>> routePoints;
   final double initialZoom;
 
-  const ResultMinimap(
-      {super.key, required this.routePoints, required this.initialZoom});
+  const ResultMinimap({
+    super.key,
+    required this.routePoints,
+    required this.initialZoom,
+  });
+
+  LatLng _calculateCenter(List<LatLng> points) {
+    if (points.isEmpty) {
+      return LatLng(34.7, 135.2); // Default center
+    }
+
+    // Calculate the average latitude and longitude
+    final double avgLat = (points.first.latitude + points.last.latitude) / 2;
+    final double avgLng = (points.first.longitude + points.last.longitude) / 2;
+
+    return LatLng(avgLat, avgLng);
+  }
 
   @override
   Widget build(BuildContext context) {
     final points = routePoints
         .map((point) => LatLng(point['lat'] as double, point['lng'] as double))
         .toList();
+
+    final initialCenter = _calculateCenter(points);
 
     return Container(
       height: 300,
@@ -24,7 +41,7 @@ class ResultMinimap extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       child: FlutterMap(
         options: MapOptions(
-          initialCenter: points.isNotEmpty ? points.first : LatLng(34.7, 135.2),
+          initialCenter: initialCenter,
           initialZoom: initialZoom,
         ),
         children: [
