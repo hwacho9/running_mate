@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/screens/running/save_track_detail_view.dart';
+import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
 import 'package:running_mate/widgets/result_minimap.dart';
 import 'package:running_mate/utils/check_language_util.dart';
 import 'package:running_mate/utils/get_region_util.dart';
@@ -28,7 +29,7 @@ class RunningResultView extends StatelessWidget {
     required this.totalDistance,
     this.trackId,
   });
-
+  // RunningResultView 클래스 내
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<RunningResultViewModel>();
@@ -37,7 +38,6 @@ class RunningResultView extends StatelessWidget {
     final averageSpeed = totalDistance > 0
         ? ((totalDistance / 1000) / (duration.inSeconds / 3600)) // m -> km 변환
         : 0.0; // 平均速度 (km/h)
-// 平均速度 (km/h)
 
     return Scaffold(
       appBar: AppBar(
@@ -69,117 +69,172 @@ class RunningResultView extends StatelessWidget {
             ResultMinimap(routePoints: coordinates, initialZoom: 18),
             const SizedBox(height: 25),
             // ボタンセクション
-            RunningButtonsSection(
-              onSaveRecord: () async {
-                final authViewModel = context.read<AuthViewModel>();
-                final userId = authViewModel.user?.uid ?? '';
+            if (trackId != null) ...[
+              // trackId가 있는 경우
+              RectangleButton(
+                onPressed: () async {
+                  final authViewModel = context.read<AuthViewModel>();
+                  final userId = authViewModel.user?.uid ?? '';
 
-                if (userId.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('ユーザーIDがありません')),
+                  if (userId.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('ユーザーIDがありません')),
+                    );
+                    return;
+                  }
+
+                  final firstPoint = coordinates.first;
+                  final region = await RegionHelper.getRegionFromCoordinates(
+                    firstPoint['lat'],
+                    firstPoint['lng'],
                   );
-                  return;
-                }
-                final firstPoint = coordinates.first;
-                final region = await RegionHelper.getRegionFromCoordinates(
-                  firstPoint['lat'],
-                  firstPoint['lng'],
-                );
 
-                final translatedRegion =
-                    CheckLanguageUtil.isKoreanRegion(region)
-                        ? convertKoreanToJapanese(region)
-                        : region;
+                  final translatedRegion =
+                      CheckLanguageUtil.isKoreanRegion(region)
+                          ? convertKoreanToJapanese(region)
+                          : region;
 
-                print('Coordinates in : $coordinates'); // 디버깅 로그
+                  print('Coordinates in : $coordinates'); // 디버깅 로그
 
-                try {
-                  await viewModel.saveUserRecord(
-                    userId: userId,
-                    trackId: trackId,
-                    startTime: startTime,
-                    endTime: endTime,
-                    pauseTime: pauseTime,
-                    distance: totalDistance,
-                    coordinates: coordinates,
-                    region: translatedRegion,
+                  try {
+                    await viewModel.saveUserRecord(
+                      userId: userId,
+                      trackId: trackId, // trackId 함께 저장
+                      startTime: startTime,
+                      endTime: endTime,
+                      pauseTime: pauseTime,
+                      distance: totalDistance,
+                      coordinates: coordinates,
+                      region: translatedRegion,
+                    );
+                    runningViewModel.stopTracking(context); // 追跡終了
+                    Navigator.pushReplacementNamed(context, '/');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('ランニング記録が保存されました')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('記録の保存に失敗しました')),
+                    );
+                  }
+                },
+                text: '記録を保存する',
+              ),
+            ] else ...[
+              // trackId가 없는 경우
+              RunningButtonsSection(
+                onSaveRecord: () async {
+                  final authViewModel = context.read<AuthViewModel>();
+                  final userId = authViewModel.user?.uid ?? '';
+
+                  if (userId.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('ユーザーIDがありません')),
+                    );
+                    return;
+                  }
+                  final firstPoint = coordinates.first;
+                  final region = await RegionHelper.getRegionFromCoordinates(
+                    firstPoint['lat'],
+                    firstPoint['lng'],
                   );
-                  runningViewModel.stopTracking(context); // 追跡終了
-                  Navigator.pushReplacementNamed(context, '/');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('ランニング記録が保存されました')),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('記録の保存に失敗しました')),
-                  );
-                }
-              },
-              onSaveTrack: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SaveTrackdetailview(
-                      onSave: (name, description) async {
-                        final authViewModel = context.read<AuthViewModel>();
-                        final userId = authViewModel.user?.uid ?? '';
 
-                        if (userId.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('ユーザーIDがありません')),
-                          );
-                          return;
-                        }
+                  final translatedRegion =
+                      CheckLanguageUtil.isKoreanRegion(region)
+                          ? convertKoreanToJapanese(region)
+                          : region;
 
-                        try {
-                          if (coordinates.isEmpty) {
+                  print('Coordinates in : $coordinates'); // 디버깅 로그
+
+                  try {
+                    await viewModel.saveUserRecord(
+                      userId: userId,
+                      trackId: trackId,
+                      startTime: startTime,
+                      endTime: endTime,
+                      pauseTime: pauseTime,
+                      distance: totalDistance,
+                      coordinates: coordinates,
+                      region: translatedRegion,
+                    );
+                    runningViewModel.stopTracking(context); // 追跡終了
+                    Navigator.pushReplacementNamed(context, '/');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('ランニング記録が保存されました')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('記録の保存に失敗しました')),
+                    );
+                  }
+                },
+                onSaveTrack: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SaveTrackdetailview(
+                        onSave: (name, description) async {
+                          final authViewModel = context.read<AuthViewModel>();
+                          final userId = authViewModel.user?.uid ?? '';
+
+                          if (userId.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('利用可能な座標がありません')),
+                              const SnackBar(content: Text('ユーザーIDがありません')),
                             );
                             return;
                           }
 
-                          final firstPoint = coordinates.first;
-                          final region =
-                              await RegionHelper.getRegionFromCoordinates(
-                            firstPoint['lat'],
-                            firstPoint['lng'],
-                          );
+                          try {
+                            if (coordinates.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('利用可能な座標がありません')),
+                              );
+                              return;
+                            }
 
-                          final translatedRegion =
-                              CheckLanguageUtil.isKoreanRegion(region)
-                                  ? convertKoreanToJapanese(region)
-                                  : region;
+                            final firstPoint = coordinates.first;
+                            final region =
+                                await RegionHelper.getRegionFromCoordinates(
+                              firstPoint['lat'],
+                              firstPoint['lng'],
+                            );
 
-                          await viewModel.saveTrackWithUserRecord(
-                            userId: userId,
-                            startTime: startTime,
-                            endTime: endTime,
-                            pauseTime: pauseTime,
-                            distance: totalDistance,
-                            coordinates: coordinates,
-                            trackName: name,
-                            description: description,
-                            region: translatedRegion,
-                          );
+                            final translatedRegion =
+                                CheckLanguageUtil.isKoreanRegion(region)
+                                    ? convertKoreanToJapanese(region)
+                                    : region;
 
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('トラックとユーザー記録が正常に保存されました'),
-                            ),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('トラックと記録の保存に失敗しました')),
-                          );
-                        }
-                      },
+                            await viewModel.saveTrackWithUserRecord(
+                              userId: userId,
+                              startTime: startTime,
+                              endTime: endTime,
+                              pauseTime: pauseTime,
+                              distance: totalDistance,
+                              coordinates: coordinates,
+                              trackName: name,
+                              description: description,
+                              region: translatedRegion,
+                            );
+
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('トラックとユーザー記録が正常に保存されました'),
+                              ),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('トラックと記録の保存に失敗しました')),
+                            );
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+            ],
             TextButton(
               onPressed: () {
                 runningViewModel.stopTracking(context); // 기록 추적 종료
