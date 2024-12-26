@@ -11,18 +11,16 @@ class TrackEditView extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<TrackEditViewModel>();
 
-    // 초기 데이터 로드
+    // 새로운 트랙 ID로 초기 데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!viewModel.isInitialized) {
-        context.read<TrackEditViewModel>().fetchInitialPublicStatus(trackId);
-      }
+      viewModel.fetchInitialPublicStatus(trackId);
     });
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Edit Track"),
       ),
-      body: viewModel.isLoading // 로딩 상태 처리
+      body: viewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),

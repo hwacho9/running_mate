@@ -145,18 +145,18 @@ class Trackservice {
   }
 
   Future<bool> getTrackPublicStatus(String trackId) async {
-    // 서버에서 데이터 가져오기
-    // 예시: Firebase Firestore 또는 REST API 호출
     try {
-      // 예시 코드 (Firebase Firestore 사용)
       final document = await FirebaseFirestore.instance
           .collection('Tracks')
           .doc(trackId)
           .get();
 
       if (document.exists) {
-        return document.data()?['is_public'] ?? false;
+        final isPublic = document.data()?['is_public'] ?? false;
+        print("Track ID: $trackId, is_public: $isPublic"); // 값 출력
+        return isPublic;
       } else {
+        print("Track not found for ID: $trackId");
         throw Exception("Track not found");
       }
     } catch (e) {
