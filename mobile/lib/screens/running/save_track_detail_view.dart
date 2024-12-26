@@ -69,7 +69,7 @@ class _SaveTrackdetailviewState extends State<SaveTrackdetailview> {
 
                 // Clear temporary track points in the RunViewModel
                 runViewModel.clearRoute();
-                await runningViewModel.stopTracking(context); // 追跡終了
+                runningViewModel.stopTracking(context); // 追跡終了
 
                 // Navigate to '/' and clear navigation stack
                 Navigator.pushNamedAndRemoveUntil(

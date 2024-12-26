@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:running_mate/screens/running/running_with_other_page.dart';
+import 'package:running_mate/screens/running/dummy/running_with_other_page.dart';
 
 class RouteDetailPage extends StatelessWidget {
   final String routeName;

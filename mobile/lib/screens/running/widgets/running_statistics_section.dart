@@ -69,8 +69,13 @@ class RunningStatisticsSection extends StatelessWidget {
   }
 
   String _formatPauseTime(Duration pauseTime) {
-    final minutes = pauseTime.inMinutes;
-    return "${minutes}分"; // XX分 형식으로 표시
+    if (pauseTime.inMinutes > 0) {
+      final minutes = pauseTime.inMinutes;
+      return "${minutes}分"; // XX分 형식으로 표시
+    } else {
+      final seconds = pauseTime.inSeconds;
+      return "${seconds}秒"; // XX秒 형식으로 표시
+    }
   }
 
   String _formatTime(DateTime time) {

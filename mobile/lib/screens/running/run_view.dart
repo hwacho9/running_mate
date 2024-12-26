@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/provider/location_provider.dart';
 import 'package:running_mate/screens/running/running_view.dart';
 import 'package:running_mate/screens/running/save_track_detail_view.dart';
 import 'package:running_mate/viewmodels/run_view_model.dart';
@@ -27,6 +28,7 @@ class _RunViewState extends State<RunView> {
   List<LatLng> _markers = []; // 마커 리스트
   bool _keepCentered = true;
   bool _mapInitialized = false;
+  LatLng? _currentPosition;
 
   List<LatLng> _getPolylinePoints() {
     List<LatLng> points = [];
@@ -48,8 +50,8 @@ class _RunViewState extends State<RunView> {
 
       final viewModel = context.read<RunViewModel>();
       viewModel.init(creatorId).then((_) {
-        if (viewModel.currentPosition != null) {
-          _mapController.move(viewModel.currentPosition!, 13.0);
+        if (_currentPosition != null) {
+          _mapController.move(_currentPosition!, 13.0);
         }
       });
 
@@ -84,10 +86,12 @@ class _RunViewState extends State<RunView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<RunViewModel>();
+    final locationProvider = context.watch<LocationProvider>();
+    _currentPosition = locationProvider.currentPosition;
 
     // Update map position only if the map is initialized
-    if (_keepCentered && _mapInitialized && viewModel.currentPosition != null) {
-      _mapController.move(viewModel.currentPosition!, 18.0);
+    if (_keepCentered && _mapInitialized && _currentPosition != null) {
+      _mapController.move(_currentPosition!, 18.0);
     }
 
     return Scaffold(
@@ -135,8 +139,7 @@ class _RunViewState extends State<RunView> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter:
-                  viewModel.currentPosition ?? const LatLng(34.70, 135.2),
+              initialCenter: _currentPosition ?? const LatLng(34.70, 135.2),
               initialZoom: 15.0,
               onMapReady: () {
                 setState(() {
@@ -176,9 +179,9 @@ class _RunViewState extends State<RunView> {
               ),
               MarkerLayer(
                 markers: [
-                  if (viewModel.currentPosition != null)
+                  if (_currentPosition != null)
                     Marker(
-                      point: viewModel.currentPosition!,
+                      point: _currentPosition!,
                       width: 50,
                       height: 50,
                       child: Transform.rotate(

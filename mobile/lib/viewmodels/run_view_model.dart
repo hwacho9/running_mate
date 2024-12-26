@@ -17,7 +17,6 @@ class RunViewModel extends ChangeNotifier {
   double _distance = 0.0;
 
   List<LatLng> get routePoints => _routePoints;
-  LatLng? get currentPosition => _currentPosition;
   String get region => _region;
   double get distance => _distance;
 
@@ -28,42 +27,10 @@ class RunViewModel extends ChangeNotifier {
   Future<void> init(String creatorId) async {
     this.creatorId = creatorId;
 
-    await _requestLocationPermission();
     if (_currentPosition != null) {
       _routePoints.add(_currentPosition!); // 초기 위치를 경로에 추가
       await _updateRegion(); // 첫 번째 경로 좌표를 기반으로 지역 정보 업데이트
     }
-  }
-
-  Future<void> _requestLocationPermission() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return;
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    _currentPosition = LatLng(position.latitude, position.longitude);
-    notifyListeners();
-
-    Geolocator.getPositionStream().listen((Position pos) {
-      _currentPosition = LatLng(pos.latitude, pos.longitude);
-      notifyListeners();
-    });
   }
 
   void addRoutePoint(LatLng point) {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'package:running_mate/provider/location_provider.dart';
 
 class MiniMap extends StatefulWidget {
   const MiniMap({super.key});
@@ -18,33 +20,13 @@ class _MiniMapState extends State<MiniMap> {
   void initState() {
     super.initState();
     _mapController = MapController();
-    _getCurrentLocation();
-  }
-
-  Future<void> _getCurrentLocation() async {
-    try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-        _mapController.move(_currentPosition!, 13.0);
-        print(_currentPosition);
-      });
-    } catch (e) {
-      print("Error getting location: $e");
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final locationProvider = context.watch<LocationProvider>();
+    _currentPosition = locationProvider.currentPosition;
+
     return Container(
       height: 200,
       decoration: BoxDecoration(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:running_mate/screens/running/route_detail_page.dart';
+import 'package:running_mate/screens/running/dummy/route_detail_page.dart';
 
 class RouteListTile extends StatelessWidget {
   final String name;

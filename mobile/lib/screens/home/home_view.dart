@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/provider/location_provider.dart';
 import 'package:running_mate/provider/running_status_provider.dart';
 import 'package:running_mate/screens/home/widgets/MiniMap.dart';
 import 'package:running_mate/screens/home/widgets/stat_grid.dart';
 import 'package:running_mate/screens/profile/profile_view.dart';
 import 'package:running_mate/viewmodels/home_view_model.dart';
-import 'package:running_mate/viewmodels/running_result_view_model.dart';
 import 'package:running_mate/viewmodels/running_view_model.dart';
 import '../../viewmodels/auth_view_model.dart';
 
@@ -24,6 +24,10 @@ class _HomeViewState extends State<HomeView> {
       final authViewModel = context.read<AuthViewModel>();
       final homeViewModel = context.read<HomeViewModel>();
       homeViewModel.loadUserStats(authViewModel.user!.uid);
+      final locationProvider = context.read<LocationProvider>();
+
+      // 현재 위치 초기화
+      locationProvider.initializeLocation();
     });
   }
 
