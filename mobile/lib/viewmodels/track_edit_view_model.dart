@@ -4,10 +4,30 @@ import 'package:running_mate/services/track_service.dart';
 class TrackEditViewModel extends ChangeNotifier {
   final Trackservice _trackService;
   bool _isPublic = false;
+  bool _isInitialized = false; // 초기화 여부
+  bool _isLoading = false; // 로딩 상태
 
   TrackEditViewModel(this._trackService);
 
   bool get isPublic => _isPublic;
+  bool get isInitialized => _isInitialized;
+  bool get isLoading => _isLoading;
+
+  Future<void> fetchInitialPublicStatus(String trackId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final initialStatus = await _trackService.getTrackPublicStatus(trackId);
+      _isPublic = initialStatus;
+      _isInitialized = true;
+    } catch (e) {
+      print("Failed to fetch initial public status: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> updatePublicStatus(String trackId, bool isPublic) async {
     try {
@@ -17,11 +37,6 @@ class TrackEditViewModel extends ChangeNotifier {
     } catch (e) {
       print("Failed to update public status: $e");
     }
-  }
-
-  void fetchInitialPublicStatus(bool initialStatus) {
-    _isPublic = initialStatus;
-    notifyListeners();
   }
 
   Future<bool> deleteTrack(String trackId) async {

@@ -143,4 +143,25 @@ class Trackservice {
 
     return userRoutes;
   }
+
+  Future<bool> getTrackPublicStatus(String trackId) async {
+    // 서버에서 데이터 가져오기
+    // 예시: Firebase Firestore 또는 REST API 호출
+    try {
+      // 예시 코드 (Firebase Firestore 사용)
+      final document = await FirebaseFirestore.instance
+          .collection('Tracks')
+          .doc(trackId)
+          .get();
+
+      if (document.exists) {
+        return document.data()?['is_public'] ?? false;
+      } else {
+        throw Exception("Track not found");
+      }
+    } catch (e) {
+      print("Error fetching track public status: $e");
+      throw e;
+    }
+  }
 }

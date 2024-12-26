@@ -1,15 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/provider/location_provider.dart';
 import 'package:running_mate/screens/SNS/sns_search_view.dart';
-import 'package:running_mate/utils/check_language_util.dart';
-import 'package:running_mate/utils/get_region_util.dart';
-import 'package:running_mate/utils/regionConverter.dart';
 import 'package:running_mate/viewmodels/sns_view_model.dart';
 import 'package:running_mate/widgets/result_minimap.dart';
-import 'package:latlong2/latlong.dart';
 
 class SnsView extends StatefulWidget {
   const SnsView({super.key});

@@ -11,60 +11,73 @@ class TrackEditView extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<TrackEditViewModel>();
 
+    // 초기 데이터 로드
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!viewModel.isInitialized) {
+        context.read<TrackEditViewModel>().fetchInitialPublicStatus(trackId);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Edit Track"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Public Settings",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      body: viewModel.isLoading // 로딩 상태 처리
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Public Settings",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Make track public:",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Switch(
+                        value: viewModel.isPublic,
+                        onChanged: (value) {
+                          viewModel.updatePublicStatus(trackId, value);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      final result = await viewModel.deleteTrack(trackId);
+                      if (result) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Track deleted successfully."),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Failed to delete track."),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.white),
+                    label: const Text("Delete Track"),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Make track public:",
-                  style: TextStyle(fontSize: 16),
-                ),
-                Switch(
-                  value: viewModel.isPublic,
-                  onChanged: (value) {
-                    viewModel.updatePublicStatus(trackId, value);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () async {
-                final result = await viewModel.deleteTrack(trackId);
-                if (result) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Track deleted successfully.")),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Failed to delete track.")),
-                  );
-                }
-              },
-              icon: const Icon(Icons.delete, color: Colors.white),
-              label: const Text("Delete Track"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

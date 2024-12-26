@@ -38,7 +38,9 @@ class TrackSpecificView extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TrackEditView(trackId: trackId),
+                  builder: (context) => TrackEditView(
+                    trackId: trackId,
+                  ),
                 ),
               );
             },
