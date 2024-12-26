@@ -2,11 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:running_mate/provider/location_provider.dart';
+import 'package:running_mate/screens/SNS/sns_search_view.dart';
 import 'package:running_mate/utils/check_language_util.dart';
 import 'package:running_mate/utils/get_region_util.dart';
 import 'package:running_mate/utils/regionConverter.dart';
 import 'package:running_mate/viewmodels/sns_view_model.dart';
 import 'package:running_mate/widgets/result_minimap.dart';
+import 'package:latlong2/latlong.dart';
 
 class SnsView extends StatefulWidget {
   const SnsView({super.key});
@@ -22,56 +25,20 @@ class _SnsViewState extends State<SnsView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final currentRegion = await _getRegionFromLocation();
-      print("current region  ${currentRegion}");
-      setState(() {
-        this.currentRegion = currentRegion ?? 'Unknown';
-      });
-      context.read<SnsViewModel>().loadSNSData(currentRegion!, userId!);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final locationProvider = context.read<LocationProvider>();
+
+      // 지역 정보가 로드될 때까지 기다림
+      if (locationProvider.region.isNotEmpty) {
+        setState(() {
+          currentRegion = locationProvider.region;
+        });
+
+        // SNS 데이터 로드
+        context.read<SnsViewModel>().loadSNSData(currentRegion, userId!);
+      }
     });
-  }
-
-  Future<String?> _getRegionFromLocation() async {
-    try {
-      // 위치 권한 요청
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw Exception('위치 서비스가 비활성화되어 있습니다.');
-      }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw Exception('위치 권한이 거부되었습니다.');
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        throw Exception('위치 권한이 영구적으로 거부되었습니다.');
-      }
-
-      // 현재 위치 가져오기
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-
-      // 위치를 기반으로 지역 정보를 반환 (예: Firestore와 연동하여 변환)
-      // 예시: Firestore에 저장된 지역 정보와 비교
-      final _region = await RegionHelper.getRegionFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
-      final translatedRegion = CheckLanguageUtil.isKoreanRegion(_region)
-          ? convertKoreanToJapanese(_region)
-          : _region;
-
-      return translatedRegion;
-    } catch (e) {
-      print("위치 정보 오류: $e");
-      return null;
-    }
   }
 
   @override
@@ -82,6 +49,17 @@ class _SnsViewState extends State<SnsView> {
       appBar: AppBar(
         title: const Text('SNS'),
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search), // 검색 이모티콘
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SnsSearchView()),
+              );
+            },
+          ),
+        ],
       ),
       body: snsViewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -235,7 +213,7 @@ class _SnsViewState extends State<SnsView> {
                         ),
                         SizedBox(width: 8),
                         Text(
-                          '달리는 친구들',
+                          '走ってる友達',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
