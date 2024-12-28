@@ -4,22 +4,26 @@ import 'package:running_mate/widgets/result_minimap.dart';
 import 'package:running_mate/utils/format.dart';
 
 class RecordListTile extends StatelessWidget {
-  final String trackId; // 트랙 고유 ID 추가
+  final String trackId;
   final String name;
   final double distance;
   final String region;
   final DateTime createdAt;
   final List<Map<String, dynamic>> routePoints;
   final double participants;
+  final int totalTime;
+  final int pauseTime;
 
   const RecordListTile({
     super.key,
-    required this.trackId, // 트랙 ID 추가
+    required this.trackId,
     required this.name,
     required this.distance,
     required this.region,
     required this.createdAt,
     required this.routePoints,
+    this.totalTime = 0, // 기본값 설정
+    this.pauseTime = 0, // 기본값 설정
     this.participants = 1,
   });
 
@@ -27,7 +31,6 @@ class RecordListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // TrackSpecificView로 이동하며 trackId와 필요한 정보를 전달
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -39,6 +42,8 @@ class RecordListTile extends StatelessWidget {
               createdAt: createdAt,
               routePoints: routePoints,
               participants: participants,
+              totalTime: totalTime, // null-safe 처리
+              pauseTime: pauseTime, // null-safe 처리
             ),
           ),
         );
@@ -48,7 +53,7 @@ class RecordListTile extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10), // 모서리 곡면 추가
+            borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
@@ -88,7 +93,7 @@ class RecordListTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "${formatDistance(distance)}· $region",
+                        "${formatDistance(distance)} · $region · ${formatTotalTime(totalTime)}",
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 14,

@@ -38,9 +38,11 @@ class ProfileRecordsPage extends StatelessWidget {
                     distance: record['distance'] ?? 0.0,
                     region: record['region'] ?? 'Unknown',
                     createdAt: startTime,
+                    totalTime: record['total_time'],
                     routePoints: (record['coordinates'] as List<dynamic>)
                         .map((coord) => Map<String, dynamic>.from(coord))
                         .toList(),
+                    pauseTime: record['pause_time'] ?? 0,
                   );
                 },
               );
