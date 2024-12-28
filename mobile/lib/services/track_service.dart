@@ -77,8 +77,18 @@ class Trackservice {
       final docSnapshot = await userDocRef.get();
 
       if (docSnapshot.exists) {
-        // If the document exists, update the tracks array
-        print("Document exists. Updating...");
+        final existingTracks =
+            List<Map<String, dynamic>>.from(docSnapshot['tracks']);
+
+        // Check if the trackId already exists in the tracks array
+        final trackExists =
+            existingTracks.any((track) => track['track_id'] == trackId);
+        if (trackExists) {
+          print("Track ID already exists. Skipping addition.");
+          return; // Exit early to prevent duplication
+        }
+
+        print("Document exists. Adding new track...");
         await userDocRef.update({
           'tracks': FieldValue.arrayUnion([userTrackData]),
         });
