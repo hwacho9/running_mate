@@ -65,7 +65,7 @@ class _MyTracksViewState extends State<MyTracksView> {
                                   hasScrollBody: false,
                                   child: Center(
                                     child: Text(
-                                      'No routes saved yet.',
+                                      'トラックがありません.',
                                       style: TextStyle(
                                           fontSize: 16, color: Colors.grey),
                                     ),
@@ -113,7 +113,7 @@ class _MyTracksViewState extends State<MyTracksView> {
                                   hasScrollBody: false,
                                   child: Center(
                                     child: Text(
-                                      'No participated routes yet.',
+                                      '参加したトラックがありません.',
                                       style: TextStyle(
                                           fontSize: 16, color: Colors.grey),
                                     ),
