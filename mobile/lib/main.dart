@@ -10,6 +10,7 @@ import 'package:running_mate/screens/tracks/my_tracks_view.dart';
 import 'package:running_mate/screens/running/run_view.dart';
 import 'package:running_mate/screens/running/running_result_view.dart';
 import 'package:running_mate/services/auth_service.dart';
+import 'package:running_mate/services/running_service.dart';
 import 'package:running_mate/services/sns_service.dart';
 import 'package:running_mate/services/track_service.dart';
 import 'package:running_mate/services/user_record_service.dart';
@@ -57,7 +58,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(
-          create: (_) => RunningViewModel(),
+          create: (_) => RunningViewModel(RunningService()),
         ),
         ChangeNotifierProvider(
           create: (_) =>

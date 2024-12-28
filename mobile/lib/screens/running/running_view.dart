@@ -27,6 +27,7 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     _mapController = MapController();
+
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<RunningViewModel>();
@@ -45,6 +46,16 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
       } else {
         viewModel.startTracking(context);
       }
+
+      debugPrint('trackId: ${widget.trackId}');
+      // 다른 사용자 기록 로드 및 재생 시작
+      if (widget.trackId != null) {
+        // 플레이 시작 시간 초기화 및 사용자 경로 로드
+        viewModel.playStartTime = DateTime.now();
+        viewModel.loadOtherUserRecords(widget.trackId!).then((_) {
+          viewModel.startReplay(); // 기록 재생 시작
+        });
+      }
     });
   }
 
@@ -60,6 +71,7 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    final viewModel = context.read<RunningViewModel>();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -170,6 +182,23 @@ class _RunningViewState extends State<RunningView> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
+                    // 다른 사용자의 위치 마커 추가
+                    if (widget.trackId != null)
+                      ...viewModel.otherUserLocations.map(
+                        (userLocation) {
+                          final location = userLocation['location'] as LatLng?;
+                          return Marker(
+                            point: location ?? LatLng(0, 0),
+                            width: 40,
+                            height: 40,
+                            child: const Icon(
+                              Icons.person_pin_circle,
+                              color: Colors.green,
+                              size: 30,
+                            ),
+                          );
+                        },
+                      ).toList(),
                   ],
                 ),
               ],

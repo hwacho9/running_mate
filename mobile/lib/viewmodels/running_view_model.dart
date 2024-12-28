@@ -6,10 +6,19 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/provider/running_status_provider.dart';
+import 'package:running_mate/services/running_service.dart';
 import 'package:running_mate/services/running_status_service.dart';
 
 class RunningViewModel extends ChangeNotifier {
+  final RunningService _runningService;
+
+  RunningViewModel(this._runningService);
+
   List<Map<String, dynamic>> _coordinates = []; // 시간, 위치 저장
+  List<Map<String, dynamic>> _otherUserLocations = []; // 사용자 위치 데이터 저장
+  List<Map<String, dynamic>> get otherUserLocations =>
+      _otherUserLocations; // Getter 추가
+
   LatLng? _currentPosition;
   LatLng? _previousPosition;
   double _totalDistance = 0.0; // 이동한 거리
@@ -18,6 +27,7 @@ class RunningViewModel extends ChangeNotifier {
   StreamSubscription<Position>? _positionSubscription; // 스트림 구독 관리
   Timer? _coordinateTimer; // 타이머 관리
   List<LatLng> _routePoints = [];
+  bool _isLoading = false;
 
   DateTime? _pauseStartTime; // 일시정지 시작 시간
   Duration _totalPauseTime = Duration.zero; // 총 일시정지 시간
@@ -29,6 +39,10 @@ class RunningViewModel extends ChangeNotifier {
   double get heading => _heading;
   DateTime? get startTime => _startTime;
   Duration get totalPauseTime => _totalPauseTime;
+  bool get isLoading => _isLoading;
+
+  Timer? _replayTimer; // 재생 타이머
+  DateTime? playStartTime; // 플레이 시작 시간
 
   // 로그인중인 유저 firebase auth로부터 uid가져오기
 
@@ -209,6 +223,115 @@ class RunningViewModel extends ChangeNotifier {
     });
 
     notifyListeners();
+  }
+
+  Future<void> loadOtherUserRecords(String trackId) async {
+    try {
+      final records = await _runningService.fetchUserRecords(trackId);
+
+      _otherUserLocations = records.map((record) {
+        final adjustedCoordinates = adjustCoordinatesTimes(
+            List<Map<String, dynamic>>.from(record['coordinates']));
+
+        return {
+          'user_id': record['user_id'],
+          'coordinates': adjustedCoordinates,
+          'location': _getLocationAtTime(0, adjustedCoordinates), // 초기 위치
+        };
+      }).toList();
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to load other user records: $e');
+    }
+  }
+
+// 타이머 시작 및 좌표 업데이트
+  void startReplay() {
+    if (playStartTime == null) {
+      debugPrint("Error: playStartTime is null.");
+      return;
+    }
+
+    _replayTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      final elapsedSeconds =
+          DateTime.now().difference(playStartTime!).inSeconds;
+
+      // 모든 유저의 위치 업데이트
+      for (var user in _otherUserLocations) {
+        final coordinates = user['coordinates'] as List<Map<String, dynamic>>;
+        final updatedLocation = _getLocationAtTime(elapsedSeconds, coordinates);
+
+        if (updatedLocation != null) {
+          user['location'] = updatedLocation;
+          debugPrint(
+              "Updated location for user ${user['user_id']}: $updatedLocation");
+        }
+      }
+
+      notifyListeners(); // UI 업데이트
+    });
+  }
+
+  List<Map<String, dynamic>> adjustCoordinatesTimes(
+      List<Map<String, dynamic>> coordinates) {
+    if (coordinates.isEmpty) return coordinates;
+
+    final DateTime baseTime = DateTime.parse(coordinates[0]['time']);
+    return coordinates.map((coord) {
+      final coordTime = DateTime.parse(coord['time']);
+      final elapsedTime = coordTime.difference(baseTime).inSeconds;
+
+      return {
+        'lat': coord['lat'],
+        'lng': coord['lng'],
+        'elapsedTime': elapsedTime, // 경과 시간 추가
+      };
+    }).toList();
+  }
+
+// 특정 시간에 가장 가까운 좌표 계산 및 보간
+  LatLng? _getLocationAtTime(
+      int elapsedSeconds, List<Map<String, dynamic>> coordinates) {
+    if (coordinates.isEmpty) return null;
+
+    for (int i = 0; i < coordinates.length; i++) {
+      final coordElapsedSeconds = coordinates[i]['elapsedTime'] as int;
+
+      if (coordElapsedSeconds == elapsedSeconds) {
+        // 정확히 일치하는 시간의 좌표 반환
+        return LatLng(coordinates[i]['lat'], coordinates[i]['lng']);
+      } else if (coordElapsedSeconds > elapsedSeconds && i > 0) {
+        // 현재 시간이 두 좌표 사이에 있는 경우 보간
+
+        debugPrint("elapsedSeconds: $elapsedSeconds");
+        final prevCoord = coordinates[i - 1];
+        final currentCoord = coordinates[i];
+        return _interpolateLocation(prevCoord, currentCoord, elapsedSeconds);
+      }
+    }
+
+    // 모든 시간이 지난 경우 마지막 좌표 반환
+    return LatLng(coordinates.last['lat'], coordinates.last['lng']);
+  }
+
+  LatLng _interpolateLocation(Map<String, dynamic> prevCoord,
+      Map<String, dynamic> currentCoord, int elapsedSeconds) {
+    final prevTime = prevCoord['elapsedTime'] as int;
+    final currentTime = currentCoord['elapsedTime'] as int;
+
+    if (currentTime == prevTime) {
+      return LatLng(prevCoord['lat'], prevCoord['lng']);
+    }
+
+    final ratio = (elapsedSeconds - prevTime) / (currentTime - prevTime);
+
+    final lat =
+        prevCoord['lat'] + (currentCoord['lat'] - prevCoord['lat']) * ratio;
+    final lng =
+        prevCoord['lng'] + (currentCoord['lng'] - prevCoord['lng']) * ratio;
+
+    return LatLng(lat, lng);
   }
 
   @override
