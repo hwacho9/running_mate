@@ -43,6 +43,9 @@ class ResultMinimap extends StatelessWidget {
         options: MapOptions(
           initialCenter: initialCenter,
           initialZoom: initialZoom,
+          interactionOptions: const InteractionOptions(
+            flags: InteractiveFlag.none, // 모든 상호작용 비활성화
+          ),
         ),
         children: [
           TileLayer(
