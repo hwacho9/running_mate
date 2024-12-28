@@ -27,19 +27,8 @@ class RecordSpecificView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TrackEditView(trackId: trackId),
-                ),
-              );
-            },
-          ),
-        ],
+        // TODO: record_edit_view로 이동
+        actions: [],
       ),
       body: Stack(
         children: [

@@ -26,6 +26,7 @@ import 'package:running_mate/viewmodels/running_view_model.dart';
 import 'package:running_mate/viewmodels/sns_search_view_model.dart';
 import 'package:running_mate/viewmodels/sns_view_model.dart';
 import 'package:running_mate/viewmodels/track_edit_view_model.dart';
+import 'package:running_mate/viewmodels/track_specific_view_model.dart';
 import 'viewmodels/auth_view_model.dart'; // AuthViewModel import
 
 Future<void> main() async {
@@ -98,6 +99,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => FollowListViewModel(UserService()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TrackSpecificViewModel(Trackservice()),
         ),
       ],
       child: MaterialApp(

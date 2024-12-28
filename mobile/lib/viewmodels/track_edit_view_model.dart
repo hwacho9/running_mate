@@ -48,9 +48,9 @@ class TrackEditViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteTrack(String trackId) async {
+  Future<bool> deleteTrack(String trackId, userId) async {
     try {
-      await _trackService.deleteTrack(trackId);
+      await _trackService.deleteTrack(trackId, userId);
       return true;
     } catch (e) {
       print("Failed to delete track: $e");

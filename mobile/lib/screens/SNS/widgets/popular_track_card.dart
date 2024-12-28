@@ -18,7 +18,7 @@ class PopularTrackCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => TrackSpecificView(
-              trackId: track['id'] as String? ?? 'Unknown ID',
+              trackId: track['track_id'] as String? ?? 'Unknown ID',
               name: track['name'] as String? ?? 'Unknown Name',
               description: track['description'] as String? ?? 'No Description',
               distance: (track['distance'] as num?)?.toDouble() ?? 0.0,

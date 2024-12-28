@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:running_mate/screens/running/running_view.dart';
 import 'package:running_mate/screens/tracks/track_edit_view.dart';
+import 'package:running_mate/viewmodels/track_specific_view_model.dart';
 import 'package:running_mate/widgets/Buttons/CircleFloatingActionButton.dart';
 import 'package:running_mate/widgets/result_minimap.dart';
 import 'package:running_mate/utils/format.dart';
@@ -17,16 +19,17 @@ class TrackSpecificView extends StatefulWidget {
   final List<Map<String, dynamic>> routePoints;
   final double? participants;
 
-  const TrackSpecificView(
-      {super.key,
-      required this.trackId,
-      required this.name,
-      required this.description,
-      required this.distance,
-      required this.region,
-      required this.createdAt,
-      required this.routePoints,
-      this.participants});
+  const TrackSpecificView({
+    super.key,
+    required this.trackId,
+    required this.name,
+    required this.description,
+    required this.distance,
+    required this.region,
+    required this.createdAt,
+    required this.routePoints,
+    this.participants,
+  });
 
   @override
   State<TrackSpecificView> createState() => _TrackSpecificViewState();
@@ -42,6 +45,7 @@ class _TrackSpecificViewState extends State<TrackSpecificView> {
     _checkIfUserIsCreator();
   }
 
+  // TODO 1: refactoring
   Future<void> _checkIfUserIsCreator() async {
     try {
       // Firestore에서 트랙의 creator_id 가져오기
@@ -65,6 +69,8 @@ class _TrackSpecificViewState extends State<TrackSpecificView> {
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<TrackSpecificViewModel>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.name),
@@ -78,6 +84,7 @@ class _TrackSpecificViewState extends State<TrackSpecificView> {
                   MaterialPageRoute(
                     builder: (context) => TrackEditView(
                       trackId: widget.trackId,
+                      userId: currentUserId!,
                     ),
                   ),
                 );
@@ -132,7 +139,7 @@ class _TrackSpecificViewState extends State<TrackSpecificView> {
                 const SizedBox(height: 8),
 
                 Text(
-                  "description: ${widget.description}",
+                  "Description: ${widget.description}",
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
@@ -155,7 +162,10 @@ class _TrackSpecificViewState extends State<TrackSpecificView> {
               child: CircleFloatingActionButton(
                 backgroundColor: Colors.orange,
                 size: 72.0,
-                onPressed: () {
+                onPressed: () async {
+                  if (!isCreator) {
+                    await model.joinTrack(currentUserId!, widget.trackId);
+                  }
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -167,7 +177,7 @@ class _TrackSpecificViewState extends State<TrackSpecificView> {
                   );
                 },
                 icon: Icons.play_arrow,
-                tooltip: 'Start',
+                tooltip: isCreator ? 'Start' : 'Join & Start',
               ),
             ),
           ),

@@ -85,6 +85,8 @@ class RunningResultViewModel extends ChangeNotifier {
           'Coordinates in saveTrackWithUserRecord: $coordinatesCopy'); // 디버깅 로그
 
       final firstPoint = coordinates.first;
+
+      debugPrint("firstPoint: $firstPoint");
       final region = await RegionHelper.getRegionFromCoordinates(
         firstPoint['lat'],
         firstPoint['lng'],
@@ -118,7 +120,7 @@ class RunningResultViewModel extends ChangeNotifier {
         distance: distance,
         coordinates: coordinatesCopy,
         totalPauseTime: pauseTime, // 휴식 시간 전달
-        region: region,
+        region: translatedRegion,
       );
 
       print('saveUserRecord completed successfully'); // 성공 여부 확인

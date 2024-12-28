@@ -63,6 +63,8 @@ class RunViewModel extends ChangeNotifier {
       firstPoint.longitude,
     );
 
+    debugPrint('firstPoint: $firstPoint');
+    debugPrint('Region: $region');
     // 원본 지역 정보 저장
     _region = region;
     notifyListeners();

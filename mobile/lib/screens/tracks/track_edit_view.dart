@@ -4,8 +4,9 @@ import 'package:running_mate/viewmodels/track_edit_view_model.dart';
 
 class TrackEditView extends StatelessWidget {
   final String trackId;
+  final String userId;
 
-  const TrackEditView({super.key, required this.trackId});
+  const TrackEditView({super.key, required this.trackId, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +53,8 @@ class TrackEditView extends StatelessWidget {
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: () async {
-                      final result = await viewModel.deleteTrack(trackId);
+                      final result =
+                          await viewModel.deleteTrack(trackId, userId);
                       if (result) {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(

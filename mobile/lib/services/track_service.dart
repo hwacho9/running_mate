@@ -8,6 +8,7 @@ class Trackservice {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  // TODO 2: set방식으로 바꾸기
   Future<String> saveTrack({
     required String name,
     required String creatorId,
@@ -36,6 +37,9 @@ class Trackservice {
 
     final trackId = docRef.id; // Retrieve the document ID
 
+    // Update the document to include the trackId
+    await docRef.update({'track_id': trackId});
+
     return trackId; // Return the document ID
   }
 
@@ -43,6 +47,7 @@ class Trackservice {
   Future<void> addToUserTracks(String userId, String trackId) async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+    print(trackId);
     try {
       final userDocRef = firestore.collection('UserTracks').doc(userId);
 
@@ -103,11 +108,38 @@ class Trackservice {
     }
   }
 
-  Future<void> deleteTrack(String trackId) async {
+  Future<void> deleteTrack(String trackId, String userId) async {
     try {
-      await _firestore.collection('Tracks').doc(trackId).delete();
+      final batch = _firestore.batch();
+
+      // 1. Delete the track document in the Tracks collection
+      final trackRef = _firestore.collection('Tracks').doc(trackId);
+      batch.delete(trackRef);
+
+      // 2. Find the UserTracks document for the specific user
+      final userTrackRef = _firestore.collection('UserTracks').doc(userId);
+      final userTrackSnapshot = await userTrackRef.get();
+
+      if (userTrackSnapshot.exists) {
+        final userTrackData = userTrackSnapshot.data();
+        final tracks =
+            List<Map<String, dynamic>>.from(userTrackData?['tracks'] ?? []);
+
+        // Filter out the track with the specified trackId
+        final updatedTracks =
+            tracks.where((track) => track['track_id'] != trackId).toList();
+
+        // Update the UserTracks document with the filtered tracks
+        batch.update(userTrackRef, {'tracks': updatedTracks});
+      }
+
+      // Commit the batch operation
+      await batch.commit();
+
+      print(
+          "Track and associated user track deleted successfully for user: $userId.");
     } catch (e) {
-      print("Failed to delete track: $e");
+      print("Failed to delete track for user: $e");
       rethrow;
     }
   }
