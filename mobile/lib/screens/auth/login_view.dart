@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:running_mate/nav_page.dart';
+import 'package:running_mate/screens/auth/find_password_view.dart';
 import 'package:running_mate/screens/auth/signup_view.dart';
 import 'package:running_mate/viewmodels/auth_view_model.dart';
 import 'package:running_mate/widgets/Buttons/RectangleButton.dart';
@@ -72,6 +73,25 @@ class LoginView extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => SignupView()),
                 );
               },
+            ),
+            const SizedBox(height: 15),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const FindPasswordView()),
+                );
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.black45, // 텍스트 색상
+                textStyle: const TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline, // 밑줄 추가
+                ),
+              ),
+              child: const Text('パスワードを忘れた場合'),
             ),
           ],
         ),
