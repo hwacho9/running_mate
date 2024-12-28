@@ -70,10 +70,11 @@ class TrackEditView extends StatelessWidget {
                         );
                       }
                     },
-                    icon: const Icon(Icons.delete, color: Colors.white),
-                    label: const Text("Delete Track"),
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    label: const Text("Delete Track",
+                        style: TextStyle(color: Colors.red)),
                     style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        ElevatedButton.styleFrom(backgroundColor: Colors.white),
                   ),
                 ],
               ),
