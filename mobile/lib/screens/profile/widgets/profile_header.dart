@@ -11,7 +11,6 @@ class ProfileHeader extends StatelessWidget {
   final String currentUserId; // 로그인된 사용자 UID
   final String profileUserId; // 보고 있는 프로필의 사용자 UID
   final VoidCallback? onEditProfile; // 프로필 수정 버튼 콜백
-  final VoidCallback? onFollow; // 팔로우 버튼 콜백
   final bool isFollowing; // 팔로우 상태
 
   const ProfileHeader({
@@ -22,7 +21,6 @@ class ProfileHeader extends StatelessWidget {
     required this.currentUserId,
     required this.profileUserId,
     this.onEditProfile,
-    this.onFollow,
     this.isFollowing = false,
   });
 
@@ -31,7 +29,13 @@ class ProfileHeader extends StatelessWidget {
     final bool isMyProfile = currentUserId == profileUserId;
     final profileViewModel = context.watch<ProfileViewModel>();
 
-    print(isFollowing);
+    // Check if following status has been determined
+    if (!isMyProfile && !profileViewModel.isFollowingChecked) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await profileViewModel.checkFollowingStatus(
+            currentUserId, profileUserId);
+      });
+    }
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -118,7 +122,7 @@ class ProfileHeader extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: isMyProfile
                     ? Colors.blueAccent // 내 프로필 수정 버튼 색상
-                    : (isFollowing
+                    : (profileViewModel.isFollowing
                         ? Colors.grey // 언팔로우 상태 색상
                         : Colors.blueAccent),
                 shape: RoundedRectangleBorder(
@@ -128,11 +132,11 @@ class ProfileHeader extends StatelessWidget {
               child: Text(
                 isMyProfile
                     ? "プロファイルを編集" // 내 프로필일 경우
-                    : (isFollowing ? "フォロー中" : "フォローする"),
+                    : (profileViewModel.isFollowing ? "フォロー中" : "フォローする"),
                 style: TextStyle(
                     color: isMyProfile
                         ? Colors.white // 내 프로필 수정 버튼 색상
-                        : (isFollowing
+                        : (profileViewModel.isFollowing
                             ? Colors.white // 언팔로우 상태 색상
                             : Colors.black)),
               ),

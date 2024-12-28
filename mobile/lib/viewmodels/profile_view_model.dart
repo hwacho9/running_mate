@@ -27,7 +27,8 @@ class ProfileViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   bool _isFollowing = false;
-
+  bool _isFollowingChecked = false;
+  bool get isFollowingChecked => _isFollowingChecked;
   bool get isFollowing => _isFollowing;
 
   ProfileViewModel(this._userService, this._userRecordService);
@@ -86,9 +87,14 @@ class ProfileViewModel extends ChangeNotifier {
 
   Future<void> checkFollowingStatus(
       String currentUserId, String profileUserId) async {
-    _isFollowing =
-        await _userService.isFollowingUser(currentUserId, profileUserId);
-    notifyListeners();
+    try {
+      _isFollowing =
+          await _userService.isFollowingUser(currentUserId, profileUserId);
+      _isFollowingChecked = true; // Following status has been determined
+      notifyListeners();
+    } catch (e) {
+      print("Failed to check following status: $e");
+    }
   }
 
   Future<void> toggleFollowStatus(

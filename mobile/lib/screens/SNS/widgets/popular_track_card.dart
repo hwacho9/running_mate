@@ -61,7 +61,7 @@ class PopularTrackCard extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8.0),
                     child: SizedBox(
-                      height: 120,
+                      height: 110,
                       width: double.infinity,
                       child: ResultMinimap(
                         routePoints: (track['coordinates'] as List<dynamic>?)
