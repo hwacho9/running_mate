@@ -88,6 +88,8 @@ class TrackListTile extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
+                        maxLines: 1, // 한 줄로 제한
+                        overflow: TextOverflow.ellipsis, // 넘칠 경우 ... 표시
                       ),
                       const SizedBox(height: 4),
                       Text(
