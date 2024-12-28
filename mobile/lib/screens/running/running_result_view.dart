@@ -105,7 +105,6 @@ class RunningResultView extends StatelessWidget {
                       pauseTime: pauseTime,
                       distance: totalDistance,
                       coordinates: coordinates,
-                      region: translatedRegion,
                     );
                     runningViewModel.stopTracking(context); // 追跡終了
                     Navigator.pushReplacementNamed(context, '/');
@@ -133,18 +132,6 @@ class RunningResultView extends StatelessWidget {
                     );
                     return;
                   }
-                  final firstPoint = coordinates.first;
-                  final region = await RegionHelper.getRegionFromCoordinates(
-                    firstPoint['lat'],
-                    firstPoint['lng'],
-                  );
-
-                  final translatedRegion =
-                      CheckLanguageUtil.isKoreanRegion(region)
-                          ? convertKoreanToJapanese(region)
-                          : region;
-
-                  print('Coordinates in : $coordinates'); // 디버깅 로그
 
                   try {
                     await viewModel.saveUserRecord(
@@ -155,7 +142,6 @@ class RunningResultView extends StatelessWidget {
                       pauseTime: pauseTime,
                       distance: totalDistance,
                       coordinates: coordinates,
-                      region: translatedRegion,
                     );
                     runningViewModel.stopTracking(context); // 追跡終了
                     Navigator.pushReplacementNamed(context, '/');
@@ -192,18 +178,6 @@ class RunningResultView extends StatelessWidget {
                               return;
                             }
 
-                            final firstPoint = coordinates.first;
-                            final region =
-                                await RegionHelper.getRegionFromCoordinates(
-                              firstPoint['lat'],
-                              firstPoint['lng'],
-                            );
-
-                            final translatedRegion =
-                                CheckLanguageUtil.isKoreanRegion(region)
-                                    ? convertKoreanToJapanese(region)
-                                    : region;
-
                             await viewModel.saveTrackWithUserRecord(
                               userId: userId,
                               startTime: startTime,
@@ -213,7 +187,6 @@ class RunningResultView extends StatelessWidget {
                               coordinates: coordinates,
                               trackName: name,
                               description: description,
-                              region: translatedRegion,
                             );
 
                             Navigator.pop(context);

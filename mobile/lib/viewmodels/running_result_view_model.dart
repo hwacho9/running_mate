@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:running_mate/services/user_record_service.dart';
 import 'package:running_mate/services/track_service.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:running_mate/utils/check_language_util.dart';
+import 'package:running_mate/utils/get_region_util.dart';
+import 'package:running_mate/utils/regionConverter.dart';
 
 class RunningResultViewModel extends ChangeNotifier {
   final UserRecordService _userRecordService;
@@ -20,7 +23,6 @@ class RunningResultViewModel extends ChangeNotifier {
     required List<Map<String, dynamic>> coordinates,
     required Duration pauseTime, // 추가된 pauseTime 파라미터
     String? trackId,
-    required String region,
   }) async {
     try {
       _isSaving = true;
@@ -28,6 +30,18 @@ class RunningResultViewModel extends ChangeNotifier {
 
       final totalTime = endTime.difference(startTime).inSeconds;
       print('Coordinates in saveUserRecord: $coordinates'); // 디버깅 로그
+
+      final firstPoint = coordinates.first;
+      final region = await RegionHelper.getRegionFromCoordinates(
+        firstPoint['lat'],
+        firstPoint['lng'],
+      );
+
+      final translatedRegion = CheckLanguageUtil.isKoreanRegion(region)
+          ? convertKoreanToJapanese(region)
+          : region;
+
+      print('translatedRegion: $translatedRegion'); // 디버깅 로그
 
       await _userRecordService.saveUserRecord(
         userId: userId,
@@ -38,7 +52,7 @@ class RunningResultViewModel extends ChangeNotifier {
         distance: distance,
         coordinates: coordinates,
         totalPauseTime: pauseTime, // 휴식 시간 전달
-        region: region,
+        region: translatedRegion,
       );
     } catch (e) {
       print('Failed to save user record: $e');
@@ -57,7 +71,6 @@ class RunningResultViewModel extends ChangeNotifier {
     required List<Map<String, dynamic>> coordinates,
     required String trackName,
     required String description,
-    required String region,
     required Duration pauseTime, // 추가된 pauseTime 파라미터
   }) async {
     try {
@@ -71,11 +84,23 @@ class RunningResultViewModel extends ChangeNotifier {
       print(
           'Coordinates in saveTrackWithUserRecord: $coordinatesCopy'); // 디버깅 로그
 
+      final firstPoint = coordinates.first;
+      final region = await RegionHelper.getRegionFromCoordinates(
+        firstPoint['lat'],
+        firstPoint['lng'],
+      );
+
+      final translatedRegion = CheckLanguageUtil.isKoreanRegion(region)
+          ? convertKoreanToJapanese(region)
+          : region;
+
+      print('translatedRegion: $translatedRegion'); // 디버깅 로그
+
       final trackId = await _trackService.saveTrack(
         name: trackName,
         creatorId: userId,
         description: description,
-        region: region,
+        region: translatedRegion,
         distance: distance,
         coordinates: coordinatesCopy
             .map((coord) => LatLng(coord['lat'], coord['lng']))

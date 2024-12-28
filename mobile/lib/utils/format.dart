@@ -11,3 +11,24 @@ String formatDistance(double distanceInMeters) {
     return "${distanceInMeters.toStringAsFixed(0)} m";
   }
 }
+
+String formatDuration(Duration duration) {
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes % 60;
+  final seconds = duration.inSeconds % 60;
+  return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+}
+
+String formatPauseTime(Duration pauseTime) {
+  if (pauseTime.inMinutes > 0) {
+    final minutes = pauseTime.inMinutes;
+    return "${minutes}分"; // XX分 형식으로 표시
+  } else {
+    final seconds = pauseTime.inSeconds;
+    return "${seconds}秒"; // XX秒 형식으로 표시
+  }
+}
+
+String formatTime(DateTime time) {
+  return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+}
