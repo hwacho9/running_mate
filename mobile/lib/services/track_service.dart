@@ -50,12 +50,13 @@ class Trackservice {
     print(trackId);
     try {
       final userDocRef = firestore.collection('UserTracks').doc(userId);
+      final trackDocRef = firestore.collection('Tracks').doc(trackId);
 
       // 명시적으로 현재 시간을 가져옵니다.
       final Timestamp currentTime = Timestamp.now();
 
       // Track 도큐먼트에서 creator_id 조회
-      final trackDoc = await firestore.collection('Tracks').doc(trackId).get();
+      final trackDoc = await trackDocRef.get();
       if (!trackDoc.exists) {
         throw Exception("Track does not exist.");
       }
@@ -99,6 +100,12 @@ class Trackservice {
           'tracks': [userTrackData], // arrayUnion이 필요하지 않습니다.
         });
       }
+
+      // Increment the participants_count in the Tracks collection
+      print("Incrementing participants_count for track: $trackId");
+      await trackDocRef.update({
+        'participants_count': FieldValue.increment(1),
+      });
 
       print('Track added successfully for user: $userId');
     } catch (e) {
