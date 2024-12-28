@@ -127,31 +127,34 @@ class _TrackSpecificViewState extends State<TrackSpecificView> {
                       "${widget.participants?.toStringAsFixed(0) ?? 0}",
                       style: const TextStyle(fontSize: 16),
                     ),
+                    const SizedBox(width: 8),
+                    Text(
+                      " ${widget.region}",
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "生成日: ${formatDate(widget.createdAt)}",
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ],
                 ),
                 const Divider(),
-                const SizedBox(height: 16),
                 Text(
-                  "Distance: ${formatDistance(widget.distance)}",
+                  formatDistance(widget.distance),
                   style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                Text(
+                  " ${widget.description}",
+                  style: const TextStyle(fontSize: 20),
                 ),
                 const SizedBox(height: 8),
 
-                Text(
-                  "Description: ${widget.description}",
-                  style: const TextStyle(fontSize: 16),
-                ),
                 const SizedBox(height: 8),
-                Text(
-                  "Region: ${widget.region}",
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Created At: ${formatDate(widget.createdAt)}",
-                  style: const TextStyle(fontSize: 16),
-                ),
               ],
             ),
           ),
