@@ -145,7 +145,7 @@ class Trackservice {
   }
 
   /// 사용자의 트랙 목록 가져오기
-  Future<List<RouteModel>> fetchTracks(String userId) async {
+  Future<Map<String, List<RouteModel>>> fetchTracks(String userId) async {
     final user = _auth.currentUser;
     if (user == null) {
       throw Exception("User not logged in");
@@ -156,24 +156,47 @@ class Trackservice {
         await _firestore.collection('UserTracks').doc(userId).get();
 
     if (!userTracksDoc.exists) {
-      return [];
+      return {'myTracks': [], 'participatedTracks': []};
     }
 
     final tracks = userTracksDoc['tracks'] as List<dynamic>;
-    List<String> trackIds = tracks.map((e) => e['track_id'] as String).toList();
+    List<String> myTrackIds = [];
+    List<String> participatedTrackIds = [];
 
-    print("User tracks: $trackIds");
+    for (final track in tracks) {
+      final isMyTrack = track['is_my_track'] as bool;
+      final trackId = track['track_id'] as String;
 
-    // Tracks 컬렉션에서 트랙 세부 정보 가져오기
-    List<RouteModel> userRoutes = [];
-    for (String trackId in trackIds) {
-      final trackDoc = await _firestore.collection('Tracks').doc(trackId).get();
-      if (trackDoc.exists) {
-        userRoutes.add(RouteModel.fromFirestore(trackId, trackDoc.data()!));
+      if (isMyTrack) {
+        myTrackIds.add(trackId);
+      } else {
+        participatedTrackIds.add(trackId);
       }
     }
 
-    return userRoutes;
+    print("My tracks: $myTrackIds");
+    print("Participated tracks: $participatedTrackIds");
+
+    // Tracks 컬렉션에서 트랙 세부 정보 가져오기
+    List<RouteModel> myTracks = [];
+    List<RouteModel> participatedTracks = [];
+
+    for (String trackId in myTrackIds) {
+      final trackDoc = await _firestore.collection('Tracks').doc(trackId).get();
+      if (trackDoc.exists) {
+        myTracks.add(RouteModel.fromFirestore(trackId, trackDoc.data()!));
+      }
+    }
+
+    for (String trackId in participatedTrackIds) {
+      final trackDoc = await _firestore.collection('Tracks').doc(trackId).get();
+      if (trackDoc.exists) {
+        participatedTracks
+            .add(RouteModel.fromFirestore(trackId, trackDoc.data()!));
+      }
+    }
+
+    return {'myTracks': myTracks, 'participatedTracks': participatedTracks};
   }
 
   Future<bool> getTrackPublicStatus(String trackId) async {

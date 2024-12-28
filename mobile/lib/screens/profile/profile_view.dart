@@ -127,12 +127,13 @@ class _ProfileViewState extends State<ProfileView>
                         ? const Center(child: CircularProgressIndicator())
                         : CustomScrollView(
                             slivers: [
-                              tracksViewModel.tracks.isEmpty
+                              tracksViewModel.myTracks.isEmpty &&
+                                      tracksViewModel.participatedTracks.isEmpty
                                   ? const SliverFillRemaining(
                                       hasScrollBody: false,
                                       child: Center(
                                         child: Text(
-                                          'No routes saved yet.',
+                                          'No tracks available.',
                                           style: TextStyle(
                                               fontSize: 16, color: Colors.grey),
                                         ),
@@ -141,8 +142,13 @@ class _ProfileViewState extends State<ProfileView>
                                   : SliverList(
                                       delegate: SliverChildBuilderDelegate(
                                         (context, index) {
-                                          final track =
-                                              tracksViewModel.tracks[index];
+                                          // Combine `myTracks` and `participatedTracks`
+                                          final tracks = [
+                                            ...tracksViewModel.myTracks,
+                                            ...tracksViewModel
+                                                .participatedTracks,
+                                          ];
+                                          final track = tracks[index];
 
                                           // coordinates (List<LatLng>)를 List<Map<String, dynamic>>로 변환
                                           final routePoints = track.coordinates
@@ -166,7 +172,9 @@ class _ProfileViewState extends State<ProfileView>
                                           );
                                         },
                                         childCount:
-                                            tracksViewModel.tracks.length,
+                                            tracksViewModel.myTracks.length +
+                                                tracksViewModel
+                                                    .participatedTracks.length,
                                       ),
                                     ),
                             ],

@@ -45,7 +45,7 @@ class _MyTracksViewState extends State<MyTracksView> {
             indicatorWeight: 3,
             tabs: [
               Tab(text: "My Tracks"),
-              Tab(text: "Pariticipated"),
+              Tab(text: "Participated"),
             ],
           ),
         ),
@@ -60,7 +60,7 @@ class _MyTracksViewState extends State<MyTracksView> {
                     ? const Center(child: CircularProgressIndicator())
                     : CustomScrollView(
                         slivers: [
-                          viewModel.tracks.isEmpty
+                          viewModel.myTracks.isEmpty
                               ? const SliverFillRemaining(
                                   hasScrollBody: false,
                                   child: Center(
@@ -74,9 +74,8 @@ class _MyTracksViewState extends State<MyTracksView> {
                               : SliverList(
                                   delegate: SliverChildBuilderDelegate(
                                     (context, index) {
-                                      final track = viewModel.tracks[index];
+                                      final track = viewModel.myTracks[index];
 
-                                      // coordinates (List<LatLng>)를 List<Map<String, dynamic>>로 변환
                                       final routePoints = track.coordinates
                                           .map((latLng) => {
                                                 'lat': latLng.latitude,
@@ -96,15 +95,61 @@ class _MyTracksViewState extends State<MyTracksView> {
                                         participants: track.participantsCcount,
                                       );
                                     },
-                                    childCount: viewModel.tracks.length,
+                                    childCount: viewModel.myTracks.length,
                                   ),
                                 ),
                         ],
                       ),
               ),
-              // 두 번째 탭: BOOKMARKED
-              const Center(
-                child: Text('No bookmarked routes yet.'),
+              // 두 번째 탭: Participated
+              RefreshIndicator(
+                onRefresh: _refreshData,
+                child: viewModel.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : CustomScrollView(
+                        slivers: [
+                          viewModel.participatedTracks.isEmpty
+                              ? const SliverFillRemaining(
+                                  hasScrollBody: false,
+                                  child: Center(
+                                    child: Text(
+                                      'No participated routes yet.',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.grey),
+                                    ),
+                                  ),
+                                )
+                              : SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      final track =
+                                          viewModel.participatedTracks[index];
+
+                                      final routePoints = track.coordinates
+                                          .map((latLng) => {
+                                                'lat': latLng.latitude,
+                                                'lng': latLng.longitude
+                                              })
+                                          .toList();
+
+                                      return TrackListTile(
+                                        trackId: track.id,
+                                        name: track.name,
+                                        description: track.description,
+                                        distance: track.distance,
+                                        region: track.region ?? "",
+                                        createdAt:
+                                            track.createdAt ?? DateTime.now(),
+                                        routePoints: routePoints,
+                                        participants: track.participantsCcount,
+                                      );
+                                    },
+                                    childCount:
+                                        viewModel.participatedTracks.length,
+                                  ),
+                                ),
+                        ],
+                      ),
               ),
             ],
           ),
